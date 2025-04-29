@@ -3,7 +3,6 @@ package com.fishtripplanner.domain.party;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
 @Getter
 @Setter
@@ -16,16 +15,16 @@ public class Waypoint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "party_id")
-    private Party party;
+    private String name;
+    private double lat;
+    private double lng;
+    private int stayTime; // 머무는 시간 (분)
+    private int orderIndex; // 경유 순서 (0: 출발지, n: 경유지, 마지막: 목적지)
 
     @Enumerated(EnumType.STRING)
     private WaypointType type;
 
-    private String name;
-    private double lat;
-    private double lng;
-    private int stayTime;
-    private int orderIndex;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "party_id")
+    private Party party;
 }

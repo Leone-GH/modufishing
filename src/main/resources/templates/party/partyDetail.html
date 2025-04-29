@@ -2,35 +2,98 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title th:text="${party.title}">파티 상세</title>
+  <title>파티 상세보기</title>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      margin: 30px;
+    }
+    .detail-box {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: #f9f9f9;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    ul li {
+      margin: 5px 0;
+    }
+    .map {
+      width: 100%;
+      height: 400px;
+      margin-top: 20px;
+    }
+  </style>
+  <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0b84a2179b2534016530526202844771&libraries=services"></script>
 </head>
 <body>
-<h1 th:text="${party.title}">파티 제목</h1>
 
-<p><strong>출발지:</strong> <span th:text="${party.departurePoint}"></span></p>
-<p><strong>목적지:</strong> <span th:text="${party.destination}"></span></p>
-<p><strong>출발 시간:</strong> <span th:text="${party.departureTime}"></span></p>
-<p><strong>예상 비용:</strong> <span th:text="${party.estimatedCost}"></span> 원</p>
-<p><strong>설명:</strong></p>
-<p th:text="${party.description}"></p>
+<div class="detail-box">
+  <h1 th:text="${party.title}">파티 제목</h1>
 
-<p><strong>경유지:</strong></p>
-<ul>
-  <li th:each="stopover, iterStat : ${party.stopovers}" th:text="${stopover} + ' (' + ${party.stopoverStayTimes[iterStat.index]} + '분)'"></li>
-</ul>
+  <h2>파티 정보</h2>
+  <ul>
+    <li><strong>지역:</strong> <span th:text="${party.region}">지역명</span></li>
+    <li><strong>출발지:</strong> <span th:text="${party.departurePoint}">출발지</span></li>
+    <li><strong>목적지:</strong> <span th:text="${party.destination}">목적지</span></li>
+    <li><strong>출발 시간:</strong> <span th:text="${#temporals.format(party.departureTime, 'yyyy-MM-dd HH:mm')}">출발시간</span></li>
+    <li><strong>예상 소요 시간:</strong> <span th:text="${party.expectedDuration}">예상시간</span> 분</li>
+    <li><strong>예상 비용:</strong> <span th:text="${party.estimatedCost}">예상비용</span> 원</li>
+    <li><strong>모집 인원:</strong> <span th:text="${party.maxParticipants}">모집인원</span> 명</li>
+  </ul>
 
-<p><strong>파티장:</strong> <span th:text="${party.leaderName}"></span></p>
-<p><strong>참가자:</strong></p>
-<ul>
-  <li th:each="user : ${party.participantNames}" th:text="${user}"></li>
-</ul>
+  <h2>경유지 목록</h2>
+  <ul>
+    <li th:each="waypoint : ${waypoints}">
+      <span th:text="|${waypoint.orderIndex}. (${waypoint.lat}, ${waypoint.lng}) [${waypoint.type}]|"></span>
+    </li>
+  </ul>
 
-<!-- 참가하기 버튼 -->
-<form th:action="@{/party/join}" method="post">
-  <input type="hidden" name="partyId" th:value="${party.id}" />
-  <input type="hidden" name="userId" th:value="${session.userId}" /> <!-- 로그인 세션에서 받아야 함 -->
-  <button type="submit">참가하기</button>
-</form>
+  <h2>경로 지도</h2>
+  <div id="map" class="map"></div>
+</div>
+
+<script>
+  kakao.maps.load(() => {
+      const map = new kakao.maps.Map(document.getElementById('map'), {
+          center: new kakao.maps.LatLng([[${party.departureLat}]], [[${party.departureLng}]]),
+          level: 6
+      });
+
+      const points = [
+        new kakao.maps.LatLng([[${party.departureLat}]], [[${party.departureLng}]])
+        <th:block th:each="waypoint : ${waypoints}">
+          , new kakao.maps.LatLng([[${waypoint.lat}]], [[${waypoint.lng}]])
+        </th:block>
+        , new kakao.maps.LatLng([[${party.destinationLat}]], [[${party.destinationLng}]])
+      ];
+
+      const polyline = new kakao.maps.Polyline({
+          path: points,
+          strokeWeight: 5,
+          strokeColor: '#FF0000',
+          strokeOpacity: 0.8,
+          strokeStyle: 'solid'
+      });
+
+      polyline.setMap(map);
+
+      points.forEach(pos => {
+          new kakao.maps.Marker({
+              map: map,
+              position: pos
+          });
+      });
+  });
+</script>
 
 </body>
 </html>

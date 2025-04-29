@@ -52,7 +52,6 @@ public class NormalRegisterController {
                     .birthday(birthday)
                     .age(age)
                     .gender(gender)
-                    .BusinessCheck(false)
                     .build();
 
             // 2. 저장

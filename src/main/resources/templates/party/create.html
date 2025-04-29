@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>파티 생성</title>
+  <link rel="stylesheet" href="/css/party-create.css">
+  <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0b84a2179b2534016530526202844771&libraries=services"></script>
+  <script src="/js/party-create.js" defer></script>
+</head>
+<body>
+<h1>파티 생성</h1>
+
+<form id="partyForm" method="post" th:action="@{/party/save}">
+  <label>제목:</label>
+  <input type="text" name="title" required><br>
+
+  <label>출발지:</label>
+  <input type="text" id="departurePoint" name="departurePoint" readonly required><br>
+
+  <label>목적지:</label>
+  <input type="text" id="destination" name="destination" readonly required><br>
+
+  <div id="map" style="width:100%; height:400px; margin-top:10px;"></div><br>
+
+  <button type="button" id="openRouteSelect">경로 선택</button>
+  <button type="submit">등록하기</button>
+</form>
+
+<!-- 루트 선택 모달 -->
+<div id="routeModal" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background:white; overflow:auto; border:1px solid gray; padding:20px;">
+  <h2>경로 선택</h2>
+  <div id="routeOptions"></div>
+  <button id="closeRouteModal">닫기</button>
+</div>
+</body>
+</html>

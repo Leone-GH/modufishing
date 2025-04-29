@@ -54,7 +54,6 @@ public class BusinessRegisterController {
                 .gender(gender)
                 .role(UserRole.OWNER) // 예: BUSINESS 또는 OWNER 같은 enum 값
                 .createdAt(now)
-                .BusinessCheck(true)
                 .build();
 
         // 2. BusinessInfo 생성 및 연결
