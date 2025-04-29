@@ -34,10 +34,11 @@
       margin-bottom: 1rem;
     }
   </style>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
 </head>
 <body>
+
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <div class="register-container">
   <h2>회원가입</h2>
 
@@ -52,43 +53,41 @@
       <div>사업자 회원</div>
     </div>
   </div>
-  <form action="/register/normal" method="post">
+
+  <form id="registerForm" action="/register/normal" method="post">
     <input type="hidden" id="userRole" name="userRole" value="NORMAL" />
 
-    <!-- 이하 기존 폼 그대로 유지 -->
+    <label for="username">아이디</label>
+    <input type="text" id="username" name="username" required>
+    <button type="button" onclick="checkUsernameDuplication()">중복확인</button>
+    <span id="usernameCheckMessage" style="font-size: 0.9em; color: red; margin-left: 10px;"></span>
+
+    <label for="password">비밀번호</label>
+    <input type="text" id="password" name="password" required>
+
     <label for="name">이름</label>
-    <input type="text" id="name" name="name"
-           th:value="${session.oauth_name}"
-           th:readonly="${session.oauth_name != null}" required />
+    <input type="text" id="name" name="name" th:value="${session.oauth_name}" th:readonly="${session.oauth_name != null}" required />
 
     <label for="nickname">닉네임</label>
-    <input type="text" id="nickname" name="nickname"
-           th:value="${session.oauth_nickname}" />
+    <input type="text" id="nickname" name="nickname" th:value="${session.oauth_nickname}" />
 
     <label for="email">이메일</label>
-    <input type="text" id="email" name="email"
-           th:value="${session.oauth_email}"
-           th:readonly="${session.oauth_email != null}" />
+    <input type="text" id="email" name="email" th:value="${session.oauth_email}" th:readonly="${session.oauth_email != null}" />
 
     <label for="gender">성별</label>
-    <input type="text" id="gender" name="gender"
-           th:value="${session.oauth_gender}"
-           th:readonly="${session.oauth_gender != null}" />
+    <input type="text" id="gender" name="gender" th:value="${session.oauth_gender}" th:readonly="${session.oauth_gender != null}" />
 
     <label for="birthyear">출생년도</label>
-    <input type="text" id="birthyear" name="birthyear"
-           th:value="${session.oauth_birthyear}"
-           th:readonly="${session.oauth_birthyear != null}" />
+    <input type="text" id="birthyear" name="birthyear" th:value="${session.oauth_birthyear}" th:readonly="${session.oauth_birthyear != null}" />
 
     <label for="birthday">출생일</label>
-    <input type="text" id="birthday" name="birthday"
-           th:value="${session.oauth_birthday}"
-           th:readonly="${session.oauth_birthday != null}" />
+    <input type="text" id="birthday" name="birthday" th:value="${session.oauth_birthday}" th:readonly="${session.oauth_birthday != null}" />
+
+    <label for="age">나이</label>
+    <input type="text" id="age" name="age" th:value="${session.oauth_age}" th:readonly="${session.oauth_age != null}" />
 
     <label for="phonenumber">전화번호</label>
-    <input type="text" id="phonenumber" name="phonenumber"
-           th:value="${session.oauth_mobile}"
-           th:readonly="${session.oauth_mobile != null}" />
+    <input type="text" id="phonenumber" name="phonenumber" th:value="${session.oauth_mobile}" th:readonly="${session.oauth_mobile != null}" />
 
     <!-- 사업자용 입력 필드 -->
     <div id="businessFields" style="display:none;">
@@ -120,13 +119,17 @@
     <button type="submit">회원가입</button>
   </form>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   function selectRole(card) {
     document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     const selectedRole = card.getAttribute("data-role");
     document.getElementById("userRole").value = selectedRole;
+
+    // form action 동적으로 바꾸기
+    const form = document.getElementById("registerForm");
+    form.action = (selectedRole === "BUSINESS") ? "/register/business" : "/register/normal";
 
     const businessFields = document.getElementById("businessFields");
     businessFields.style.display = selectedRole === "BUSINESS" ? "block" : "none";
@@ -141,16 +144,40 @@
   }
 
   window.onload = function () {
-    // 초기 로딩 시 BUSINESS라면 보여주기
     if (document.getElementById("userRole").value === "BUSINESS") {
       document.querySelectorAll('.role-card').forEach(c => {
         if (c.getAttribute("data-role") === "BUSINESS") c.classList.add("selected");
         else c.classList.remove("selected");
       });
       document.getElementById("businessFields").style.display = "block";
+      document.getElementById("registerForm").action = "/register/business";
     }
   }
+    function checkUsernameDuplication() {
+    const username = document.getElementById("username").value;
+    if (!username) {
+      alert("아이디를 입력해주세요.");
+      return;
+    }
+    fetch(`/api/check-username?username=` + encodeURIComponent(username))
+      .then(response => response.json())
+      .then(data => {
+        const msg = document.getElementById("usernameCheckMessage");
+        if (data.exists) {
+          msg.style.color = 'red';
+          msg.textContent = "이미 사용 중인 아이디입니다.";
+        } else {
+          msg.style.color = 'green';
+          msg.textContent = "사용 가능한 아이디입니다.";
+        }
+      })
+      .catch(err => {
+        console.error("중복 확인 오류:", err);
+        alert("중복 확인 중 문제가 발생했습니다.");
+      });
+  }
+
+
 </script>
 </body>
 </html>
-

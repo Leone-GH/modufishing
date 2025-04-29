@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fishtripplanner.mapper.macbook">
+    <select id="selectAll" resultType="com.fishtripplanner.dto.UserMapper">
+        select *
+        from users
+        <choose>
+            <when test=" username != null and username != '' ">
+                where username like '%${username}%'
+            </when>
+            <otherwise>
+                where id > 0
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

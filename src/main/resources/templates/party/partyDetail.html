@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${party.title}">파티 상세</title>
+</head>
+<body>
+<h1 th:text="${party.title}">파티 제목</h1>
+
+<p><strong>출발지:</strong> <span th:text="${party.departurePoint}"></span></p>
+<p><strong>목적지:</strong> <span th:text="${party.destination}"></span></p>
+<p><strong>출발 시간:</strong> <span th:text="${party.departureTime}"></span></p>
+<p><strong>예상 비용:</strong> <span th:text="${party.estimatedCost}"></span> 원</p>
+<p><strong>설명:</strong></p>
+<p th:text="${party.description}"></p>
+
+<p><strong>경유지:</strong></p>
+<ul>
+  <li th:each="stopover, iterStat : ${party.stopovers}" th:text="${stopover} + ' (' + ${party.stopoverStayTimes[iterStat.index]} + '분)'"></li>
+</ul>
+
+<p><strong>파티장:</strong> <span th:text="${party.leaderName}"></span></p>
+<p><strong>참가자:</strong></p>
+<ul>
+  <li th:each="user : ${party.participantNames}" th:text="${user}"></li>
+</ul>
+
+<!-- 참가하기 버튼 -->
+<form th:action="@{/party/join}" method="post">
+  <input type="hidden" name="partyId" th:value="${party.id}" />
+  <input type="hidden" name="userId" th:value="${session.userId}" /> <!-- 로그인 세션에서 받아야 함 -->
+  <button type="submit">참가하기</button>
+</form>
+
+</body>
+</html>
