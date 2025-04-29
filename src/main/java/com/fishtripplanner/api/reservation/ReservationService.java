@@ -6,15 +6,20 @@ import com.fishtripplanner.dto.ReservationPostRequest;
 import com.fishtripplanner.dto.ReservationPostResponse;
 import com.fishtripplanner.dto.reservation.CreateReservationRequestDto;
 import com.fishtripplanner.dto.reservation.ReservationResponseDto;
+import com.fishtripplanner.entity.RegionEntity;
+import com.fishtripplanner.repository.RegionRepository;
 import com.fishtripplanner.repository.ReservationPostRepository;
 import com.fishtripplanner.repository.ReservationRequestRepository;
 import com.fishtripplanner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -23,16 +28,20 @@ public class ReservationService {
     private final ReservationPostRepository reservationPostRepository;
     private final ReservationRequestRepository reservationRequestRepository;
     private final UserRepository userRepository;
+    private final RegionRepository regionRepository;
 
     public ReservationPostResponse createReservationPost(ReservationPostRequest request) {
         User owner = userRepository.findById(request.getOwnerId()).orElseThrow();
+
+        RegionEntity region = regionRepository.findById(request.getRegionId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지역입니다"));
 
         ReservationPost post = ReservationPost.builder()
                 .owner(owner)
                 .type(ReservationType.valueOf(request.getType()))
                 .title(request.getTitle())
                 .content(request.getContent())
-                .region(request.getRegion())
+                .region(region)
                 .availableDates(request.getAvailableDates())
                 .price(request.getPrice())
                 .imageUrl(request.getImageUrl())
@@ -90,5 +99,14 @@ public class ReservationService {
         return reservationRequestRepository.findByUserId(userId).stream()
                 .map(ReservationResponseDto::from)
                 .collect(Collectors.toList());
+    }
+
+    public Page<ReservationPost> getPostsByRegion(String type, List<Long> regionIds, Pageable pageable) {
+        ReservationType reservationType = ReservationType.valueOf(type.toUpperCase());
+        if (regionIds != null && !regionIds.isEmpty()) {
+            return reservationPostRepository.findByTypeAndRegionIds(reservationType, regionIds, pageable);
+        } else {
+            return reservationPostRepository.findByType(reservationType, pageable);
+        }
     }
 }

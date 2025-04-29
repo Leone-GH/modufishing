@@ -61,23 +61,28 @@ public class Party {
 
     private LocalDateTime createdAt;
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(name = "party_participants",
             joinColumns = @JoinColumn(name = "party_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> participants = new ArrayList<>();
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(name = "party_approved_participants",
             joinColumns = @JoinColumn(name = "party_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> approvedParticipants = new ArrayList<>();
 
+    @Builder.Default
     @ElementCollection
     private List<String> board = new ArrayList<>();
 
+    @Builder.Default
     @ElementCollection
     private List<String> chat = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "reservation_post_id")
     private ReservationPost reservationPost;

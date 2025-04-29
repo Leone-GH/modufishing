@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>예약 선택</title>
+</head>
+<body>
+<h1>예약 선택</h1>
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>예약 제목</th>
+    <th>업체명</th>
+    <th>날짜</th>
+    <th>선택</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="reservation : ${reservations}">
+    <td th:text="${reservation.title}"></td>
+    <td th:text="${reservation.businessName}"></td>
+    <td th:text="${reservation.date}"></td>
+    <td>
+      <button type="button"
+              th:onclick="'window.opener.postMessage({reservationId: ' + ${reservation.id} + ', reservationText: \'' + ${reservation.title} + '\'}, window.location.origin); window.close();'">
+        선택
+      </button>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

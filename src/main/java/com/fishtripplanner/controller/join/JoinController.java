@@ -33,6 +33,16 @@ public class JoinController {
     public String registerWithOAuth(HttpSession session, Model model) {
         model.addAttribute("nickname", session.getAttribute("oauth_nickname"));
         model.addAttribute("profileImage", session.getAttribute("oauth_profile_image"));
+        model.addAttribute("email", session.getAttribute("oauth_email"));
+        model.addAttribute("gender", session.getAttribute("oauth_gender"));
+        model.addAttribute("age", session.getAttribute("oauth_age"));
+        model.addAttribute("birthday", session.getAttribute("oauth_birthday"));
+        model.addAttribute("birthyear", session.getAttribute("oauth_birthyear"));
+        model.addAttribute("mobile", session.getAttribute("oauth_mobile"));
+        model.addAttribute("name", session.getAttribute("oauth_name"));
+
+
+
         return "join/oauthJoinForm"; // 따로 페이지 만들거나 기존 회원가입 폼 재사용
     }
 }

@@ -6,7 +6,6 @@
   <link rel="stylesheet" th:href="@{/css/joinBusiness.css}" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-
 </head>
 <body>
 <div class="register-container">
@@ -31,13 +30,23 @@
     <label for="company">회사명</label>
     <input type="text" id="company" name="company" required />
 
-    <label for="address">
-      주소
+    <label for="gender">성별</label>
+    <input type="text" id="gender" name="gender" required />
+
+    <label for="age">나이</label>
+    <input type="text" id="age" name="age" required />
+
+    <label for="birthyear">출생년도</label>
+    <input type="text" id="birthyear" name="birthyear" required />
+
+    <label for="birthday">생일 (MM-DD)</label>
+    <input type="text" id="birthday" name="birthday" required />
+
+    <label for="address">주소</label>
     <div class="input-group">
       <input type="text" id="address" name="address" readonly required />
       <button type="button" onclick="execDaumPostcode()">주소 검색</button>
     </div>
-    </label>
 
     <label for="address2">상세주소</label>
     <input type="text" id="address2" name="address2" required />
@@ -46,19 +55,20 @@
     <input type="email" id="email" name="email" required />
 
     <label for="phonenumber">전화번호</label>
-    <input type="number" id="phonenumber" name="phonenumber" required />
+    <input type="text" id="phonenumber" name="phonenumber" required />
 
     <label for="service">서비스 종류</label>
-    <select id="service" name="service">
+    <select id="service" name="service" required>
       <option value="">선택하세요</option>
       <option value="선상낚시">선상낚시</option>
       <option value="갯바위">갯바위</option>
       <option value="선외기">선외기 대여</option>
       <option value="여객선">여객선</option>
       <option value="민박">민박</option>
-      <option value="민박">캠핑장</option>
+      <option value="캠핑장">캠핑장</option>
     </select>
 
+    <br />
     <button type="submit">회원가입</button>
   </form>
 </div>

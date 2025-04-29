@@ -15,7 +15,7 @@ public class ReservationPostResponse {
     private Long id;
     private String title;
     private String content;
-    private String region;
+    private String region; // 여기에 지역 이름(String)을 담아야 하니까...
     private String type;
     private List<LocalDate> availableDates;
     private int price;
@@ -23,11 +23,15 @@ public class ReservationPostResponse {
     private LocalDateTime createdAt;
 
     public static ReservationPostResponse from(ReservationPost post) {
+        String child = post.getRegion().getName();
+        String parent = post.getRegion().getParent() != null ? post.getRegion().getParent().getName() : null;
+        String regionText = parent != null ? "(" + parent + ") " + child : child;
+
         return ReservationPostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .region(post.getRegion())
+                .region(regionText) // ✅ 여기가 핵심!
                 .type(post.getType().name())
                 .availableDates(post.getAvailableDates())
                 .price(post.getPrice())
@@ -36,3 +40,4 @@ public class ReservationPostResponse {
                 .build();
     }
 }
+

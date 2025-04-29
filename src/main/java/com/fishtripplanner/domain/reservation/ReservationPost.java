@@ -1,6 +1,8 @@
 package com.fishtripplanner.domain.reservation;
 
 import com.fishtripplanner.domain.User;
+import com.fishtripplanner.entity.FishTypeEntity;
+import com.fishtripplanner.entity.RegionEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,8 +33,6 @@ public class ReservationPost {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private String region;
-
     @ElementCollection
     private List<LocalDate> availableDates;
 
@@ -42,9 +42,22 @@ public class ReservationPost {
 
     private LocalDateTime createdAt;
 
+    private String companyName;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private RegionEntity region;
+
+    @ManyToMany
+    @JoinTable(
+            name = "reservationpost_fishtype",
+            joinColumns = @JoinColumn(name = "reservationpost_id"),
+            inverseJoinColumns = @JoinColumn(name = "fish_id")
+    )
+    private List<FishTypeEntity> fishTypeEntities;
+
 
 }
 
 
-//fishtype
 

@@ -2,33 +2,109 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>일반 회원가입</title>
+  <title>회원가입</title>
   <link rel="stylesheet" th:href="@{/css/joinNormal.css}" />
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <style>
+    .role-selector {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .role-card {
+      border: 3px solid #ccc;
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      width: 200px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .role-card.selected {
+      border-color: #009688;
+      background-color: #e0f2f1;
+    }
+
+    .role-card img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 1rem;
+    }
+  </style>
+
 </head>
 <body>
+
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <div class="register-container">
-  <h2>일반 회원가입</h2>
-  <form action="/register/normal" method="post">
-    <input type="hidden" id="UserRole" value="NORMAL">
+  <h2>회원가입</h2>
+
+  <!-- 회원 구분 카드 선택 -->
+  <div class="role-selector">
+    <div class="role-card selected" data-role="NORMAL" onclick="selectRole(this)">
+      <img src="/images/user.png" alt="일반 회원">
+      <div>일반 회원</div>
+    </div>
+    <div class="role-card" data-role="BUSINESS" onclick="selectRole(this)">
+      <img src="/images/business.png" alt="사업자 회원">
+      <div>사업자 회원</div>
+    </div>
+  </div>
+
+  <form id="registerForm" action="/register/normal" method="post">
+    <input type="hidden" id="userRole" name="userRole" value="NORMAL" />
 
     <label for="username">아이디</label>
-    <div class="input-group">
-      <input type="text" id="username" name="username" required />
-      <button type="button" onclick="checkDuplicateId()">중복확인</button>
-    </div>
+    <input type="text" id="username" name="username" required>
+    <button type="button" onclick="checkUsernameDuplication()">중복확인</button>
+    <span id="usernameCheckMessage" style="font-size: 0.9em; color: red; margin-left: 10px;"></span>
 
     <label for="password">비밀번호</label>
-    <input type="password" id="password" name="password" required />
+    <input type="text" id="password" name="password" required>
 
     <label for="name">이름</label>
-    <input type="text" id="name" name="name" required />
-
-    프로필 사진 : <img th:if="${profileImage}" th:src="${profileImage}" alt="카카오 프로필" style="width:100px;">
+    <input type="text" id="name" name="name" th:value="${session.oauth_name}" th:readonly="${session.oauth_name != null}" required />
 
     <label for="nickname">닉네임</label>
-    <input type="text" id= "nickname" name="nickname" th:value="${nickname}" />
+    <input type="text" id="nickname" name="nickname" th:value="${session.oauth_nickname}" />
+
+    <label for="email">이메일</label>
+    <input type="text" id="email" name="email" th:value="${session.oauth_email}" th:readonly="${session.oauth_email != null}" />
+
+    <label for="gender">성별</label>
+    <input type="text" id="gender" name="gender" th:value="${session.oauth_gender}" th:readonly="${session.oauth_gender != null}" />
+
+    <label for="birthyear">출생년도</label>
+    <input type="text" id="birthyear" name="birthyear" th:value="${session.oauth_birthyear}" th:readonly="${session.oauth_birthyear != null}" />
+
+    <label for="birthday">출생일</label>
+    <input type="text" id="birthday" name="birthday" th:value="${session.oauth_birthday}" th:readonly="${session.oauth_birthday != null}" />
+
+    <label for="age">나이</label>
+    <input type="text" id="age" name="age" th:value="${session.oauth_age}" th:readonly="${session.oauth_age != null}" />
+
+    <label for="phonenumber">전화번호</label>
+    <input type="text" id="phonenumber" name="phonenumber" th:value="${session.oauth_mobile}" th:readonly="${session.oauth_mobile != null}" />
+
+    <!-- 사업자용 입력 필드 -->
+    <div id="businessFields" style="display:none;">
+      <label for="company">회사명</label>
+      <input type="text" id="company" name="company" />
+
+      <label for="service">서비스 종류</label>
+      <select id="service" name="service">
+        <option value="">선택하세요</option>
+        <option value="선상낚시">선상낚시</option>
+        <option value="갯바위">갯바위</option>
+        <option value="선외기">선외기 대여</option>
+        <option value="여객선">여객선</option>
+        <option value="민박">민박</option>
+        <option value="캠핑장">캠핑장</option>
+      </select>
+    </div>
 
     <label for="address1">주소</label>
     <div class="input-group">
@@ -39,28 +115,24 @@
     <label for="address2">상세주소</label>
     <input type="text" id="address2" name="address2" required />
 
-    <label for="email">이메일</label>
-    <input type="email" id="email" name="email" required />
-
-    <label for="phonenumber">전화번호</label>
-    <input type="number" id="phonenumber" name="phonenumber" required />
-
+    <br>
     <button type="submit">회원가입</button>
   </form>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-  function checkDuplicateId() {
-    const username = $('#username').val();
-    if (!username) return alert("아이디를 입력하세요.");
+  function selectRole(card) {
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    const selectedRole = card.getAttribute("data-role");
+    document.getElementById("userRole").value = selectedRole;
 
-    $.get(`/api/user/check-id?username=${username}`, function (response) {
-      if (response.exists) {
-        alert("이미 사용 중인 아이디입니다.");
-      } else {
-        alert("사용 가능한 아이디입니다.");
-      }
-    });
+    // form action 동적으로 바꾸기
+    const form = document.getElementById("registerForm");
+    form.action = (selectedRole === "BUSINESS") ? "/register/business" : "/register/normal";
+
+    const businessFields = document.getElementById("businessFields");
+    businessFields.style.display = selectedRole === "BUSINESS" ? "block" : "none";
   }
 
   function execDaumPostcode() {
@@ -70,6 +142,42 @@
       }
     }).open();
   }
+
+  window.onload = function () {
+    if (document.getElementById("userRole").value === "BUSINESS") {
+      document.querySelectorAll('.role-card').forEach(c => {
+        if (c.getAttribute("data-role") === "BUSINESS") c.classList.add("selected");
+        else c.classList.remove("selected");
+      });
+      document.getElementById("businessFields").style.display = "block";
+      document.getElementById("registerForm").action = "/register/business";
+    }
+  }
+    function checkUsernameDuplication() {
+    const username = document.getElementById("username").value;
+    if (!username) {
+      alert("아이디를 입력해주세요.");
+      return;
+    }
+    fetch(`/api/check-username?username=` + encodeURIComponent(username))
+      .then(response => response.json())
+      .then(data => {
+        const msg = document.getElementById("usernameCheckMessage");
+        if (data.exists) {
+          msg.style.color = 'red';
+          msg.textContent = "이미 사용 중인 아이디입니다.";
+        } else {
+          msg.style.color = 'green';
+          msg.textContent = "사용 가능한 아이디입니다.";
+        }
+      })
+      .catch(err => {
+        console.error("중복 확인 오류:", err);
+        alert("중복 확인 중 문제가 발생했습니다.");
+      });
+  }
+
+
 </script>
 </body>
 </html>

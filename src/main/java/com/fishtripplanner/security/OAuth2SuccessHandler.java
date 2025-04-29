@@ -32,23 +32,48 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         OAuth2User user = token.getPrincipal();
 
         String registrationId = token.getAuthorizedClientRegistrationId();
+        String name = null;
         String nickname = null;
         String profileImage = null;
-
+        String email = null;
+        String gender = null;
+        String age = null;
+        String birthday = null;
+        String birthyear = null;
+        String mobile = null;
         if (registrationId.equals("kakao")) {
             Map<String, Object> properties = (Map<String, Object>) user.getAttributes().get("properties");
             nickname = (String) properties.get("nickname");
             profileImage = (String) properties.get("profile_image");
+            HttpSession session = request.getSession();
+
 
         } else if (registrationId.equals("naver")) {
             Map<String, Object> responseMap = (Map<String, Object>) user.getAttributes().get("response");
             nickname = (String) responseMap.get("nickname");
             profileImage = (String) responseMap.get("profile_image");
+            email = (String) responseMap.get("email");
+            gender = (String) responseMap.get("gender");
+            age = (String) responseMap.get("age");
+            birthday = (String) responseMap.get("birthday");
+            birthyear = (String) responseMap.get("birthyear");
+            mobile = (String) responseMap.get("mobile");
+            name = (String) responseMap.get("name");
         }
-
         HttpSession session = request.getSession();
         session.setAttribute("oauth_nickname", nickname);
         session.setAttribute("oauth_profile_image", profileImage);
+        session.setAttribute("oauth_email", email);
+        session.setAttribute("oauth_gender", gender);
+        session.setAttribute("oauth_age", age);
+        session.setAttribute("oauth_birthday", birthday);
+        session.setAttribute("oauth_birthyear", birthyear);
+        session.setAttribute("oauth_mobile", mobile);
+        session.setAttribute("oauth_name", name);
+
+
+
+
 
         Optional<User> existing = userRepository.findByNickname(nickname);
         if (existing.isPresent()) {

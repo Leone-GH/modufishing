@@ -11,6 +11,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class BusinessInfo {
 
     @Id
@@ -18,14 +19,14 @@ public class BusinessInfo {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private String companyName;
+    private String businessNumber;
     private String address;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> serviceTypes; // 선상, 갯바위, 섬 여객선, 선외기 대여, 민박집, 캠핑장!
+    private Set<String> serviceTypes; // ex: 선상, 갯바위, 섬 등
 }
-
 

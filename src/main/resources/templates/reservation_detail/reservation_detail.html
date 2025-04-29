@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>상세 페이지</title>
+  <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_detail.css}" />
+</head>
+<body>
+
+<h1 th:text="${title}">제목</h1>
+
+<div class="filter-container">
+  <div class="filter-top-group">
+    <div class="filter-group">
+      <button id="regionBtn">지역 선택하기</button>
+    </div>
+    <div class="filter-group">
+      <button>날짜 선택하기</button>
+    </div>
+    <div class="filter-group">
+      <button>어종 선택하기</button>
+    </div>
+    <div class="filter-group">
+      <button>정렬기준</button>
+    </div>
+  </div>
+
+  <div class="search-row">
+    <input type="text" placeholder="검색창" class="search-input">
+    <button class="search-button">검색하기</button>
+  </div>
+
+  <!-- ✅ 여기 추가 -->
+  <div id="selectedInfo" class="selected-info"></div>
+
+</div>
+
+<div class="ad-card-list" id="cardContainer">
+  <div class="ad-card" th:each="card : ${cards}">
+
+    <!-- ✅ 실제 데이터 (ReservationCardDto) -->
+    <div th:if="${card instanceof T(com.fishtripplanner.dto.reservation.ReservationCardDto)}">
+      <div class="ad-image">
+        <img th:src="@{${card.imageUrl}}" alt="예약 이미지" style="width:100%; height:180px; object-fit:cover;">
+      </div>
+      <div class="ad-desc" th:text="${card.title}">제목</div>
+      <div class="ad-detail">
+        <p th:text="${card.region != null ? card.region : '없음'}">지역</p>
+        <p th:text="'회사명: ' + ${card.companyName}">회사명</p>
+        <p th:text="'어종: ' + ${#strings.arrayJoin(card.fishTypes.toArray(), ', ')}">어종</p>
+        <p th:text="${card.content}">내용</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="pagination">
+  <span th:if="${currentPage > 0}">
+    <a th:href="@{'/reservation/' + ${type} + '?page=' + (${currentPage - 1})}">이전</a>
+  </span>
+  <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+    <a th:href="@{'/reservation/' + ${type} + '?page=' + ${i}}"
+       th:text="${i + 1}"
+       th:classappend="${i == currentPage} ? 'active-page' : ''"></a>
+  </span>
+  <span th:if="${currentPage < totalPages - 1}">
+    <a th:href="@{'/reservation/' + ${type} + '?page=' + (${currentPage + 1})}">다음</a>
+  </span>
+</div>
+
+<!-- 모달 구조 개선 -->
+<div id="regionModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>지역 선택</h2>
+    <div id="regionList" class="region-modal-body"></div>
+
+    <div class="current-selection">선택된 지역 없음</div>
+
+    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+      <button id="regionApply">적용</button>
+      <button id="regionReset">초기화</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/reservation_detail.js"></script>
+
+</body>
+</html>

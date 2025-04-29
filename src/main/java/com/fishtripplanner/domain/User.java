@@ -21,12 +21,6 @@ public class User {
     private String username;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private String nickname;
-
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false, unique = true)
@@ -35,29 +29,17 @@ public class User {
     @Column(nullable = false, unique = true)
     private String address;
 
-    @Column(nullable = false)
-    private String phonenumber;
-
-    @Column(nullable = false)
-    private String gender;
-
-    @Column(nullable = false)
-    private String age;
-
-    @Column(nullable = true)
-    private String birthyear;
-
-    @Column(nullable = true)
-    private String birthday;
-
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
     private LocalDateTime createdAt;
 
-    private boolean BusinessCheck;
-
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private BusinessInfo businessInfo;
 }
+
+
+
+
+
 
