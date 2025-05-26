@@ -1,7 +1,6 @@
-// FishingIndexService.java
 package com.fishtripplanner.api.khoa;
-import com.fishtripplanner.api.khoa.FishingIndexRegionType;
 
+import com.fishtripplanner.api.khoa.FishingIndexRegionType;
 import com.fishtripplanner.api.khoa.FishingIndexResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +35,7 @@ public class FishingIndexService {
     }
 
     public List<FishingIndex> getFishingIndex(String region, LocalDate date) {
-        return com.fishtripplanner.api.khoa.FishingIndexRegionType.mapToApiRegion(region).map(apiRegion -> {
+        Optional<List<FishingIndex>> optionalList = FishingIndexRegionType.mapToApiRegion(region).map(apiRegion -> {
             try {
                 String url = BASE_URL +
                         "?ServiceKey=" + serviceKey +
@@ -52,19 +51,18 @@ public class FishingIndexService {
                                 new ParameterizedTypeReference<FishingIndexResponse<FishingIndex>>() {}
                         );
 
-                @SuppressWarnings("unchecked")
-                List<FishingIndex> resultList = Optional.ofNullable(response.getBody())
+                return Optional.ofNullable(response.getBody())
                         .map(FishingIndexResponse::getResult)
                         .map(FishingIndexResult::getData)
                         .orElse(Collections.emptyList());
 
-                return resultList;
-
             } catch (Exception e) {
                 log.error("생활해양예보지수(갯바위낚시) 조회 실패: area={}, date={}", region, date, e);
-                return List.of();
+                return Collections.emptyList();
             }
-        }).orElse(List.of());
+        });
+
+        return optionalList.orElse(Collections.emptyList());
     }
 
     public int mapFishingIndexToScore(String index) {
