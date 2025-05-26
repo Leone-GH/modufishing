@@ -1,13 +1,17 @@
+// ... (이전 클래스들 생략)
+
+// KhoaStationService.java
 package com.fishtripplanner.api.khoa;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,14 +24,16 @@ public class KhoaStationService {
 
     public List<Station> getAllStations() {
         try {
-            StationApiResponse response = restTemplate.getForObject(STATION_LIST_URL, StationApiResponse.class);
+            String rawJson = restTemplate.getForObject(STATION_LIST_URL, String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            StationApiResponse response = mapper.readValue(rawJson, StationApiResponse.class);
             return response.getResult().getData();
         } catch (Exception e) {
             log.error("관측소 목록 불러오기 실패", e);
             return List.of();
         }
     }
-    // 여러 항목(예: 수온, 풍속, 기온 등)을 각각 제공하는 가장 가까운 관측소를 반환
+
     public Map<String, Optional<Station>> findNearestStationsForDataTypes(double lat, double lon, List<String> requiredTypes) {
         List<Station> stations = getAllStations();
         Map<String, Optional<Station>> result = new HashMap<>();
@@ -93,4 +99,3 @@ public class KhoaStationService {
         private String obsObject;
     }
 }
-

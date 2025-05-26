@@ -1,9 +1,8 @@
 package com.fishtripplanner.mapper;
 
+import com.fishtripplanner.api.khoa.FishingIndex;
 import com.fishtripplanner.dto.MarineInfoResponseDto;
 import com.fishtripplanner.api.khoa.FishingIndexService;
-import com.fishtripplanner.api.khoa.KhoaStationService;
-import com.fishtripplanner.api.khoa.TideForecastService;
 import com.fishtripplanner.api.khoa.TripMarineInfoService;
 
 import java.util.List;
@@ -13,9 +12,21 @@ import java.util.stream.Collectors;
 
 public class MarineInfoMapper {
 
+    // FishingIndexService를 의존성 주입 없이 사용하기 위한 헬퍼 메서드
+    private static int getFishingScore(String index) {
+        return switch (index == null ? "" : index.trim()) {
+            case "매우좋음" -> 5;
+            case "좋음" -> 4;
+            case "보통" -> 3;
+            case "나쁨" -> 2;
+            case "매우나쁨" -> 1;
+            default -> 0;
+        };
+    }
+
     public static MarineInfoResponseDto toResponseDto(
             TripMarineInfoService.MarineInfoResult result,
-            Optional<FishingIndexService.FishingIndex> recommended
+            Optional<FishingIndex> recommended
     ) {
         return MarineInfoResponseDto.builder()
                 .fishingForecast(
@@ -29,7 +40,7 @@ public class MarineInfoMapper {
                                 .currentSpeed(f.getCurrentSpeed())
                                 .tide(f.getTide())
                                 .fishingIndex(f.getFishingIndex())
-                                .fishingScore(new FishingIndexService().mapFishingIndexToScore(f.getFishingIndex()))
+                                .fishingScore(getFishingScore(f.getFishingIndex()))
                                 .build()
                         ).collect(Collectors.toList())
                 )
@@ -64,7 +75,7 @@ public class MarineInfoMapper {
                                 .currentSpeed(f.getCurrentSpeed())
                                 .tide(f.getTide())
                                 .fishingIndex(f.getFishingIndex())
-                                .fishingScore(new FishingIndexService().mapFishingIndexToScore(f.getFishingIndex()))
+                                .fishingScore(getFishingScore(f.getFishingIndex()))
                                 .build()
                         ).orElse(null)
                 )

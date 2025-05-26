@@ -1,9 +1,10 @@
 package com.fishtripplanner.controller.api;
 
-import com.fishtripplanner.dto.MarineInfoResponseDto;
-import com.fishtripplanner.mapper.MarineInfoMapper;
+import com.fishtripplanner.api.khoa.FishingIndex;
 import com.fishtripplanner.api.khoa.FishingIndexService;
 import com.fishtripplanner.api.khoa.TripMarineInfoService;
+import com.fishtripplanner.dto.MarineInfoResponseDto;
+import com.fishtripplanner.mapper.MarineInfoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/marine-info")
@@ -27,15 +30,19 @@ public class MarineInfoController {
             @RequestParam double lon,
             @RequestParam String area,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(required = false) String fishType
+            @RequestParam(required = false) String fishType,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime arrivalTime
     ) {
-        // 통합 데이터 수집
         var result = tripMarineInfoService.getMarineInfo(lat, lon, area, date);
 
-        // 어종별 추천 시간대 선택 (선택사항)
-        var recommended = (fishType != null)
-                ? fishingIndexService.recommendBestTime(result.getFishingIndexList(), fishType)
-                : java.util.Optional.empty();
+        Optional<FishingIndex> recommended = Optional.empty();
+        if (fishType != null) {
+            if (arrivalTime != null) {
+                recommended = fishingIndexService.recommendBestTimeAfter(result.getFishingIndexList(), fishType, arrivalTime);
+            } else {
+                recommended = fishingIndexService.recommendBestTime(result.getFishingIndexList(), fishType);
+            }
+        }
 
         return MarineInfoMapper.toResponseDto(result, recommended);
     }
