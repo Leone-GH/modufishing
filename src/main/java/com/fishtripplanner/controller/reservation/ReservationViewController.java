@@ -58,6 +58,15 @@ public class ReservationViewController {
         int pageSize = 4;
         int start = page * pageSize;
         int end = Math.min(start + pageSize, allCards.size());
+
+        // ✅ 잘못된 범위 예외 방지
+        if (start >= allCards.size()) {
+            model.addAttribute("cards", new ArrayList<ReservationCardDto>());
+            model.addAttribute("currentPage", 0);
+            model.addAttribute("totalPages", 1);
+            return "reservation_page/reservation_list";
+        }
+
         List<Object> pagedCards = allCards.subList(start, end);
 
         // 모델에 카드 리스트 추가
@@ -92,5 +101,7 @@ public class ReservationViewController {
         model.addAttribute("reservation", dto);
         return "reservation_page/reservation_detail";
     }
+
+
 
 }

@@ -6,6 +6,7 @@ import com.fishtripplanner.dto.user.JoinRequest;
 import com.fishtripplanner.dto.user.LoginRequest;
 import com.fishtripplanner.dto.user.UserResponse;
 import com.fishtripplanner.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +32,27 @@ public class UserService {
     public boolean login(LoginRequest request) {
         return userRepository.findByUsernameAndPassword(
                 request.getUsername(), request.getPassword()).isPresent();
+    }
+
+    @Transactional
+    public User updateUser(Long userId, User updatedUser) {
+        User existing = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        existing.setName(updatedUser.getName());
+        existing.setNickname(updatedUser.getNickname());
+        existing.setEmail(updatedUser.getEmail());
+        existing.setPhonenumber(updatedUser.getPhonenumber());
+        existing.setAddress(updatedUser.getAddress());
+        existing.setBirthyear(updatedUser.getBirthyear());
+        existing.setBirthday(updatedUser.getBirthday());
+
+        return existing; // 트랜잭션 내에서 dirty checking + 반환
+    }
+
+    @Transactional
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + id));
     }
 }

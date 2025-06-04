@@ -1,3 +1,4 @@
+
 package com.fishtripplanner.dto;
 
 import com.fishtripplanner.domain.reservation.ReservationPost;
@@ -9,26 +10,25 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// 예약글 응답 DTO
 @Getter
 @Builder
 public class ReservationPostResponse {
     private Long id;
     private String title;
     private String content;
-    private String region; // 여기에 지역 이름(String)을 담아야 하니까...
+    private String region;
     private String type;
     private List<LocalDate> availableDates;
     private int price;
     private String imageUrl;
     private LocalDateTime createdAt;
 
+    // ✅ 정적 팩토리 메서드 사용
     public static ReservationPostResponse from(ReservationPost post) {
         String child = post.getRegion().getName();
         String parent = post.getRegion().getParent() != null ? post.getRegion().getParent().getName() : null;
         String regionText = parent != null ? "(" + parent + ") " + child : child;
 
-        // ✅ imageUrl 처리 (기본 이미지 fallback 포함)
         String imageUrl = post.getImageUrl();
         if (imageUrl == null || imageUrl.isBlank()) {
             imageUrl = switch (post.getType()) {
@@ -58,4 +58,3 @@ public class ReservationPostResponse {
                 .build();
     }
 }
-

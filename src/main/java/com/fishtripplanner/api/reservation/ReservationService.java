@@ -35,14 +35,12 @@ public class ReservationService {
     /**
      * ✅ 예약글 등록
      */
-    public ReservationPostResponse createReservationPost(ReservationPostRequest request) {
-        User owner = userRepository.findById(request.getOwnerId()).orElseThrow();
-
+    public ReservationPostResponse createReservationPost(ReservationPostRequest request, User user) {
         RegionEntity region = regionRepository.findById(request.getRegionId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지역입니다"));
 
         ReservationPost post = ReservationPost.builder()
-                .owner(owner)
+                .owner(user) // ⬅️ user 인자로 받음
                 .type(ReservationType.valueOf(request.getType()))
                 .title(request.getTitle())
                 .content(request.getContent())
@@ -52,7 +50,6 @@ public class ReservationService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        // ✅ 날짜 리스트를 ReservationPostAvailableDate로 변환
         List<ReservationPostAvailableDate> availableDateList = request.getAvailableDates().stream()
                 .map(date -> ReservationPostAvailableDate.builder()
                         .availableDate(date)
@@ -60,7 +57,7 @@ public class ReservationService {
                         .build())
                 .toList();
 
-        post.setAvailableDates(availableDateList); // 세터로 설정
+        post.setAvailableDates(availableDateList);
 
         return ReservationPostResponse.from(reservationPostRepository.save(post));
     }

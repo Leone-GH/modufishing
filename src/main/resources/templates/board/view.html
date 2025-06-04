@@ -27,6 +27,21 @@
       color: #00796b;
     }
 
+    .profile-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .profile-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #ccc;
+    }
+
     .content {
       margin: 1rem 0;
       line-height: 1.6;
@@ -133,12 +148,16 @@
 
 <div class="view-container">
   <h1 th:text="${post.title}">제목</h1>
-  <p><strong>작성자:</strong> <span th:text="${post.writer}">작성자</span></p>
+
+  <div class="profile-info">
+    <img th:if="${post.profileImagePath != null}" th:src="@{${post.profileImagePath}}" class="profile-thumb" alt="프로필 이미지">
+    <p><strong>작성자:</strong> <span th:text="${post.writer}">작성자</span></p>
+  </div>
+
   <div class="content" th:text="${post.content}">내용</div>
 
-  <!-- 미디어 출력 영역 -->
+  <!-- 첨부 미디어 -->
   <div>
-    <img th:if="${post.profileImagePath != null}" th:src="@{${post.profileImagePath}}" alt="프로필 이미지">
     <img th:if="${post.imagePath != null}" th:src="@{${post.imagePath}}" alt="첨부 이미지">
     <video th:if="${post.videoPath != null}" th:src="@{${post.videoPath}}" controls></video>
   </div>
@@ -160,7 +179,6 @@
       </div>
     </div>
 
-    <!-- 로그인한 사용자만 댓글 작성 가능 -->
     <div th:if="${session.user != null}">
       <form th:action="@{/comments/add}" method="post" class="comment-form">
         <input type="hidden" name="postId" th:value="${post.id}" />

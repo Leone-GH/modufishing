@@ -63,7 +63,13 @@
         <!-- 예약 및 자리 -->
         <div class="action-box">
           <p class="remaining" th:text="'남은 자리: ' + ${date.remaining} + '명'">남은 자리: 10명</p>
-          <button class="reserve-button">예약하기</button> <!-- TODO: 예약 기능 연결 -->
+          <button
+                  class="reserve-button"
+                  th:data-post-id="${reservation.id}"
+                  th:data-date="${date.date}"
+                  th:data-remaining="${date.remaining}">
+            예약하기
+          </button>
         </div>
       </div>
     </div>
@@ -88,7 +94,7 @@
 
 <th:block layout:fragment="add-js">
   <!-- 필요 시 JS 추가 -->
-
+  <script th:src="@{/js/reservation_detail.js}"></script>
 </th:block>
 
 </html>

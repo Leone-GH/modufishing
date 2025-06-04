@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,14 +32,14 @@ public class PostController {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
-    private static final String UPLOAD_DIR = "uploads";
+    private static final String STATIC_UPLOAD_DIR = System.getProperty("user.dir") + "/uploads";
 
     @GetMapping
     public String list(Model model,
                        @RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "keyword", required = false) String keyword) {
 
-        Pageable pageable = PageRequest.of(page, 12);
+        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdAt")); // 페이지당 5개 게시글
         Page<Post> posts = (keyword != null && !keyword.isEmpty())
                 ? postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
                 : postRepository.findAll(pageable);
@@ -75,13 +75,13 @@ public class PostController {
 
         try {
             if (profileImageFile != null && !profileImageFile.isEmpty()) {
-                post.setProfileImagePath(storeFile(profileImageFile));
+                post.setProfileImagePath("/uploads/" + storeFile(profileImageFile));
             }
             if (imageFile != null && !imageFile.isEmpty()) {
-                post.setImagePath(storeFile(imageFile));
+                post.setImagePath("/uploads/" + storeFile(imageFile));
             }
             if (videoFile != null && !videoFile.isEmpty()) {
-                post.setVideoPath(storeFile(videoFile));
+                post.setVideoPath("/uploads/" + storeFile(videoFile));
             }
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 중 오류 발생", e);
@@ -93,16 +93,22 @@ public class PostController {
 
     private String storeFile(MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String extension = "";
+
+        int dotIndex = originalFilename.lastIndexOf(".");
+        if (dotIndex != -1) {
+            extension = originalFilename.substring(dotIndex);
+        }
+
         String storedFilename = UUID.randomUUID().toString() + extension;
 
-        File dir = new File(UPLOAD_DIR);
+        File dir = new File(STATIC_UPLOAD_DIR);
         if (!dir.exists()) dir.mkdirs();
 
         File savedFile = new File(dir, storedFilename);
         file.transferTo(savedFile);
 
-        return "/uploads/" + storedFilename; // view.html에서 사용되는 경로
+        return storedFilename;
     }
 
     @Transactional
@@ -118,14 +124,6 @@ public class PostController {
         List<Comment> comments = commentRepository.findByPostIdOrderByCreatedAtAsc(id);
         model.addAttribute("post", post);
         model.addAttribute("comments", comments);
-
-        if (principal instanceof CustomUserDetails userDetails) {
-            System.out.println("🧍 일반 로그인 사용자: " + userDetails.getUsername());
-        } else if (principal instanceof CustomOAuth2User oauthUser) {
-            System.out.println("🧍‍♂️ 소셜 로그인 사용자: " + oauthUser.getUser().getUsername());
-        } else {
-            System.out.println("⚠️ 로그인 정보 없음 또는 알 수 없는 타입");
-        }
 
         return "board/view";
     }
@@ -149,8 +147,10 @@ public class PostController {
         return "redirect:/posts";
     }
 
+    @Transactional
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable("id") Long id) {
+        commentRepository.deleteByPostId(id);
         postRepository.deleteById(id);
         return "redirect:/posts";
     }

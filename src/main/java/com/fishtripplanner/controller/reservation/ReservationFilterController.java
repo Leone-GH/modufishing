@@ -53,7 +53,7 @@ public class ReservationFilterController {
     public List<ReservationCardDto> getFilteredCards(
             @RequestParam("type") String type,
             @RequestParam(value = "regionId", required = false) List<Long> regionIds,
-            @RequestParam(value = "date", required = false) String dateStr,
+            @RequestParam(value = "date", required = false) List<String> dateList,
             @RequestParam(value = "fishType", required = false) List<String> fishTypes,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "sort", defaultValue = "latest") String sortKey,
@@ -63,7 +63,9 @@ public class ReservationFilterController {
         ReservationType enumType = ReservationType.valueOf(type.toUpperCase());
 
         // 🔹 날짜 파싱
-        LocalDate parsedDate = (dateStr != null && !dateStr.isBlank()) ? LocalDate.parse(dateStr) : null;
+        List<LocalDate> parsedDates = (dateList != null)
+                ? dateList.stream().map(LocalDate::parse).toList()
+                : null;
 
         // 🔹 빈 값 null-safe 처리
         List<Long> validRegionIds = (regionIds == null || regionIds.isEmpty()) ? null : regionIds;
@@ -72,7 +74,7 @@ public class ReservationFilterController {
 
         // 🔹 서비스 호출
         Page<ReservationPost> page = reservationPostService.filterPosts(
-                enumType, validRegionIds, parsedDate, validFishTypes, validKeyword, sortKey, pageable
+                enumType, validRegionIds, parsedDates, validFishTypes, validKeyword, sortKey, pageable
         );
 
         // 🔹 DTO 변환 후 반환

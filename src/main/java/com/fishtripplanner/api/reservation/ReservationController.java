@@ -6,8 +6,10 @@ import com.fishtripplanner.dto.reservation.ReservationResponseDto;
 import com.fishtripplanner.domain.reservation.ReservationStatus;
 import com.fishtripplanner.dto.ReservationPostRequest;
 import com.fishtripplanner.dto.ReservationPostResponse;
+import com.fishtripplanner.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +26,11 @@ public class ReservationController {
 
     // 예약글 등록 API
     @PostMapping("/register")
-    public ResponseEntity<ReservationPostResponse> register(@RequestBody ReservationPostRequest request) {
-        ReservationPostResponse response = reservationService.createReservationPost(request);
+    public ResponseEntity<ReservationPostResponse> register(
+            @RequestBody ReservationPostRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        ReservationPostResponse response = reservationService.createReservationPost(request, userDetails.getUser());
         return ResponseEntity.ok(response);
     }
 

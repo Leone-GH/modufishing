@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>내 정보 - FishTrip</title>
+  <link rel="stylesheet" href="/css/MainPage.css">
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <script src="/js/common.js" defer></script>
+  <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        background-color: #b2ebf2;
+        font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .main-content {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 3rem 1rem;
+    }
+
+    .profile-container {
+        background-color: white;
+        padding: 2rem 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        max-width: 700px;
+        width: 100%;
+    }
+
+    .profile-container h2 {
+        color: #00695c;
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .user-info p {
+        font-size: 1.1rem;
+        margin: 0.7rem 0;
+        border-bottom: 1px dashed #ccc;
+        padding-bottom: 0.3rem;
+    }
+
+    .user-info strong {
+        color: #004d40;
+    }
+
+    .user-info span {
+        color: #333;
+    }
+
+    .edit-button {
+        display: block;
+        margin: 2rem auto 0;
+        padding: 0.7rem 1.8rem;
+        background-color: #0288d1;
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .edit-button:hover {
+        background-color: #0277bd;
+    }
+
+    footer {
+        margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<div th:replace="fragments/header :: headerFragment"></div>
+
+<!-- 본문 -->
+<div class="main-content">
+  <div class="profile-container">
+    <h2>🎣 내 정보</h2>
+    <div class="user-info">
+      <p><strong>이름:</strong> <span th:text="${user.name}">이름</span></p>
+      <p><strong>닉네임:</strong> <span th:text="${user.nickname}">닉네임</span></p>
+      <p><strong>이메일:</strong> <span th:text="${user.email}">이메일</span></p>
+      <p><strong>전화번호:</strong> <span th:text="${user.phonenumber}">전화번호</span></p>
+      <p><strong>생년월일:</strong> <span th:text="${user.birthyear} + '-' + ${user.birthday}">1990-01</span></p>
+      <p><strong>성별:</strong> <span th:text="${user.gender}">성별</span></p>
+      <p><strong>주소:</strong> <span th:text="${user.address}">주소</span></p>
+      <p><strong>나이:</strong> <span th:text="${user.age}">20</span></p>
+      <p><strong>역할:</strong> <span th:text="${user.role}">NORMAL</span></p>
+      <p><strong>아이디(유저네임):</strong> <span th:text="${user.username}">아이디</span></p>
+      <p><strong>가입일:</strong> <span th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01</span></p>
+    </div>
+
+    <!-- 수정 버튼 -->
+    <form th:action="@{/profile/edit}" method="get">
+      <button type="submit" class="edit-button">수정</button>
+    </form>
+  </div>
+</div>
+
+<!-- 푸터 -->
+<div th:replace="fragments/footer :: footerFragment"></div>
+
+</body>
+</html>

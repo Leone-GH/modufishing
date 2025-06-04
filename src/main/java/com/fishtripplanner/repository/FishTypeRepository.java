@@ -1,7 +1,7 @@
 package com.fishtripplanner.repository;
 
-import org.springframework.stereotype.Repository;
+import com.fishtripplanner.entity.FishTypeEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-public interface FishTypeRepository {
+public interface FishTypeRepository extends JpaRepository<FishTypeEntity, Long> {
 }

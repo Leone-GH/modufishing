@@ -18,10 +18,10 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final OAuth2SuccessHandler oAuth2LoginSuccessHandler;
+    private final LoginSuccessHandler loginSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
@@ -32,14 +32,15 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/videos/**",   // <<== 비디오 리소스 접근 허용 추가
+                                "/videos/**",
                                 "/join/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler(loginSuccessHandler)
+                        .failureUrl("/login?error")  // 로그인 실패 시 URL
                         .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2

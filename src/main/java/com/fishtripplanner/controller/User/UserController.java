@@ -1,36 +1,57 @@
 package com.fishtripplanner.controller.User;
 
+import com.fishtripplanner.api.user.UserService;
 import com.fishtripplanner.domain.User;
-import com.fishtripplanner.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
+import com.fishtripplanner.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @GetMapping("/login")
-    public String loginForm() {
+    public String loginPage() {
         return "login";
     }
 
-    @GetMapping("/notifications")
-    public String userNotifications(HttpSession session, Model model) {
-        User sessionUser = (User) session.getAttribute("user");
-
-        if (sessionUser == null) {
-            return "redirect:/login";
-        }
-
-        User user = userRepository.findById(sessionUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
-
+    @GetMapping("/profile")
+    public String profilePage(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        User user = userService.findById(userId);
         model.addAttribute("user", user);
-        return "notifications";
+        return "user/notification";
+    }
+
+    @GetMapping("/profile/edit")
+    public String editProfilePage(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        User user = userService.findById(userId);
+        model.addAttribute("user", user);
+        return "user/profile_edit";
+    }
+
+    @PostMapping("/profile/update")
+    public String updateProfile(@ModelAttribute("user") User updatedUser,
+                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        User savedUser = userService.updateUser(userId, updatedUser);
+
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                new CustomUserDetails(savedUser),
+                null,
+                userDetails.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        return "redirect:/profile";
     }
 }

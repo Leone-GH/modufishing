@@ -1,5 +1,5 @@
 // PartyController.java
-package com.fishtripplanner.controller.Party;
+package com.fishtripplanner.controller.party;
 
 import com.fishtripplanner.domain.User;
 import com.fishtripplanner.domain.party.Party;
@@ -18,9 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor

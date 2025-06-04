@@ -7,6 +7,74 @@
   <link rel="stylesheet" th:href="@{/css/list.css}">
   <link rel="stylesheet" th:href="@{/css/edit.css}">
   <script th:src="@{/js/common.js}" defer></script>
+  <style>
+    .pagination {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .pagination a {
+      margin: 0 4px;
+      padding: 6px 12px;
+      text-decoration: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      color: #00796b;
+      font-weight: bold;
+    }
+
+    .pagination a.current {
+      background-color: #00796b;
+      color: white;
+      pointer-events: none;
+    }
+
+    .write-btn {
+      display: block;
+      margin: 2rem auto;
+      padding: 0.7rem 1.5rem;
+      background-color: #0288d1;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .write-btn:hover {
+      background-color: #0277bd;
+    }
+
+    .profile-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .post-card {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: #e0f7fa;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-area {
+      margin-right: 1rem;
+    }
+
+    .text-area {
+      flex: 1;
+    }
+
+    .post-link {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
 <div th:replace="~{fragments/header :: headerFragment}"></div>
@@ -20,7 +88,10 @@
       <li class="post-item" th:each="post : ${popularPosts}">
         <div class="post-card">
           <div class="profile-area">
-            <img th:if="${post.profileImagePath != null}" th:src="@{${post.profileImagePath}}" class="profile-thumb" alt="프로필">
+            <img th:if="${post.profileImagePath != null}"
+                 th:src="@{${post.profileImagePath}}"
+                 class="profile-thumb"
+                 alt="프로필 이미지">
             <span class="default-icon" th:if="${post.profileImagePath == null}">📌</span>
           </div>
           <div class="text-area">
@@ -35,7 +106,10 @@
     <li class="post-item" th:each="post : ${posts.content}">
       <div class="post-card">
         <div class="profile-area">
-          <img th:if="${post.profileImagePath != null}" th:src="@{${post.profileImagePath}}" class="profile-thumb" alt="프로필">
+          <img th:if="${post.profileImagePath != null}"
+               th:src="@{${post.profileImagePath}}"
+               class="profile-thumb"
+               alt="프로필 이미지">
           <span class="default-icon" th:if="${post.profileImagePath == null}">📝</span>
         </div>
         <div class="text-area">
@@ -46,11 +120,13 @@
   </ul>
 
   <div class="pagination" th:if="${posts.totalPages > 1}">
+    <a th:if="${posts.hasPrevious()}" th:href="@{'/posts?page=' + ${posts.number - 1}}">◀</a>
     <a th:each="page : ${#numbers.sequence(0, posts.totalPages - 1)}"
        th:href="@{'/posts?page=' + ${page}}"
        th:text="${page + 1}"
-       th:classappend="${page == posts.number} ? 'current'">
+       th:classappend="${page == posts.number} ? 'current' : ''">
     </a>
+    <a th:if="${posts.hasNext()}" th:href="@{'/posts?page=' + ${posts.number + 1}}">▶</a>
   </div>
 
   <a th:href="@{/posts/new}">
