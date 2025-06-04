@@ -18,7 +18,7 @@ public class MainPageController {
     @GetMapping("/")
     public String rootRedirectToMain(Model model) {
         List<Post> posts = postRepository.findTop10ByOrderByCreatedAtDesc();
-        List<Post> popularPosts = postRepository.findTop9ByOrderByViewCountDesc();
+        List<Post> popularPosts = postRepository.findTop12ByOrderByViewCountDesc(); // ★ 12개로 수정
         model.addAttribute("posts", posts);
         model.addAttribute("popularPosts", popularPosts);
         return "MainPage";
@@ -27,7 +27,7 @@ public class MainPageController {
     @GetMapping("/MainPage")
     public String showMainPage(Model model) {
         List<Post> posts = postRepository.findTop10ByOrderByCreatedAtDesc();
-        List<Post> popularPosts = postRepository.findTop9ByOrderByViewCountDesc();
+        List<Post> popularPosts = postRepository.findTop12ByOrderByViewCountDesc(); // ★ 12개로 수정
         model.addAttribute("posts", posts);
         model.addAttribute("popularPosts", popularPosts);
         return "MainPage";

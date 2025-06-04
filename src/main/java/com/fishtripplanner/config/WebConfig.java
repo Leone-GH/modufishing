@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 정적 리소스를 외부 경로에서 서빙할 수 있도록 설정
+        // 파일 업로드 경로 매핑
         Path uploadDir = Paths.get("uploads");
         String uploadPath = uploadDir.toAbsolutePath().toString().replace("\\", "/");
 
@@ -25,6 +25,21 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(resourceLocation)
+                .setCachePeriod(0);
+
+        // CSS 정적 리소스 경로 매핑
+        registry.addResourceHandler("/css/**")
+                .addResourceLocations("classpath:/static/css/")
+                .setCachePeriod(0);
+
+        // JS 정적 리소스 경로 매핑
+        registry.addResourceHandler("/js/**")
+                .addResourceLocations("classpath:/static/js/")
+                .setCachePeriod(0);
+
+        // 이미지 정적 리소스 경로 매핑
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("classpath:/static/images/")
                 .setCachePeriod(0);
     }
 }

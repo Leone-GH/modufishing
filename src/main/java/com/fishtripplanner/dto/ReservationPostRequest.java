@@ -14,22 +14,22 @@ public class ReservationPostRequest {
     private String type;
     private String title;
     private String content;
-    private String region;
     private List<LocalDate> availableDates;
     private List<Long> fishTypeIds;
     private int price;
     private String imageUrl;
-    private Long regionId; // ✅ FK용
+    private List<Long> regionIds;  // ✅ 여러 지역을 지원하도록 변경
 
-    // ✅ DTO → Entity 변환 메서드 (클래스 내부에 위치해야 함)
-    public ReservationPost toEntity(RegionEntity region) {
+    // ✅ 서비스에서 루프 돌려서 여러 지역을 사용하도록 변경
+    public ReservationPost toEntity(List<RegionEntity> regions) {
+        // 여러 지역을 하나의 예약글에 연결하기 위해서
         return ReservationPost.builder()
                 .title(this.title)
                 .content(this.content)
                 .price(this.price)
                 .imageUrl(this.imageUrl)
-                .type(ReservationType.valueOf(this.type))  // String → Enum
-                .region(region)
+                .type(ReservationType.valueOf(this.type))
+                .regions(regions)  // 여러 지역을 예약글에 연결
                 .build();
     }
 }

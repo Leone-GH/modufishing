@@ -2,6 +2,7 @@ package com.fishtripplanner.domain.reservation;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 
 /**
@@ -30,8 +31,20 @@ public class ReservationPostAvailableDate {
     private ReservationPost reservationPost;
 
     /**
-     * ✅ 예약 가능한 날짜 (컬럼 이름 변경됨)
+     * ✅ 예약 가능한 날짜
      */
-    @Column(name = "available_date") // ← 여기 변경됨
+    @Column(name = "available_date")
     private LocalDate availableDate;
+
+    /**
+     * ✅ 예약 정원
+     */
+    @Column(name = "capacity")
+    private Integer capacity;
+
+    /**
+     * ✅ 예약 가능 시간 (예: 06:00~14:00)
+     */
+    @Column(name = "time")
+    private String time;
 }

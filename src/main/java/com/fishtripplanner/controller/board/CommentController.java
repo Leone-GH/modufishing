@@ -1,4 +1,4 @@
-package com.fishtripplanner.controller.comment;
+package com.fishtripplanner.controller.board;
 
 import com.fishtripplanner.domain.User;
 import com.fishtripplanner.domain.board.Post;
@@ -8,6 +8,7 @@ import com.fishtripplanner.repository.PostRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -42,5 +43,15 @@ public class CommentController {
         commentRepository.save(comment);
 
         return "redirect:/posts/" + postId;
+    }
+
+    @Transactional // 중요: 좋아요 증가가 DB에 반영되도록 보장
+    @PostMapping("/like/{commentId}")
+    @ResponseBody
+    public String likeComment(@PathVariable Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 없습니다."));
+        comment.increaseLikeCount();
+        return String.valueOf(comment.getLikeCount());
     }
 }

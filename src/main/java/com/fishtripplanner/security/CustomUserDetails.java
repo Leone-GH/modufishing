@@ -42,4 +42,8 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() { return true; }
 
     public User getUser() { return user; }
+
+    // ✅ 추가: 로그인 유저의 ID 직접 접근용 (뷰단에서 principal.id 로 사용 가능)
+    public Long getId() { return user.getId();}
+
 }

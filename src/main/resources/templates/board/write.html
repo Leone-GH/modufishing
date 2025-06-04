@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>게시글 작성</title>
-  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/header.css}" />
   <link rel="stylesheet" th:href="@{/css/list.css}">
   <link rel="stylesheet" th:href="@{/css/edit.css}">
   <script th:src="@{/js/common.js}" defer></script>
@@ -82,8 +82,8 @@
     <label for="profileImageFile">프로필 이미지</label>
     <input type="file" id="profileImageFile" name="profileImageFile" accept="image/*" />
 
-    <label for="imageFile">이미지 첨부</label>
-    <input type="file" id="imageFile" name="imageFile" accept="image/*" />
+    <label for="imageFiles">이미지 첨부 (여러 개 가능)</label>
+    <input type="file" id="imageFiles" name="imageFiles" multiple accept="image/*" />
 
     <label for="videoFile">비디오 첨부</label>
     <input type="file" id="videoFile" name="videoFile" accept="video/*" />
@@ -101,6 +101,5 @@
     return true;
   }
 </script>
-
 </body>
 </html>

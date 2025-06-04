@@ -8,7 +8,7 @@ body {
 .board-container {
   background: white;
   max-width: 700px;
-  margin: 120px auto 2rem;
+  margin: 40px auto 2rem; /* ✅ 상단 여백 축소 */
   border-radius: 10px;
   padding: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

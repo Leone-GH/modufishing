@@ -14,9 +14,6 @@
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
 
-    <!-- ✅ 공통 JS -->
-    <script th:src="@{/js/common.js}" defer></script>
-
     <!-- ✅ 개별 페이지 CSS -->
     <th:block layout:fragment="add-css"></th:block>
 </head>
@@ -26,8 +23,8 @@
     <header th:replace="fragments/header :: headerFragment"></header>
 
     <div class="page-wrapper">
-    <!-- ✅ 페이지 본문 -->
-    <main layout:fragment="content"></main>
+        <!-- ✅ 페이지 본문 -->
+        <main layout:fragment="content"></main>
     </div>
 
     <!-- ✅ 공통 푸터 -->
@@ -36,6 +33,9 @@
 
 <!-- ✅ 개별 페이지 JS -->
 <th:block layout:fragment="add-js"></th:block>
+
+<!-- ✅ 공통 JS (이제 defer 제거하고, body 맨 아래로 이동시킴) -->
+<script th:src="@{/js/common.js}"></script>
 
 </body>
 </html>

@@ -3,21 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>로그인</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 50px; }
-        .login-container { max-width: 400px; margin: auto; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 8px; box-sizing: border-box; }
-        .error { color: red; font-size: 0.9em; }
-        .social-login { margin-top: 20px; text-align: center; }
-        .social-btn { margin: 5px; padding: 10px; border-radius: 50%; width: 40px; height: 40px; border: none; cursor: pointer; }
-        .google { background-color: #db4437; color: white; }
-        .kakao { background-color: #fee500; color: black; }
-        .naver { background-color: #03c75a; color: white; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/css_reservation/login.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.10.2/lottie.min.js"></script>
 </head>
 <body>
+
+<div class="wave-container">
+    <div id="wave-animation" class="wave-animation"></div>
+</div>
+
 <div class="login-container">
     <h1>로그인</h1>
 
@@ -31,27 +26,40 @@
             <input type="password" id="password" name="password" required />
         </div>
 
-        <div th:if="${param.error}" class="error">
+        <div th:if="${param.error}" class="error-message">
             아이디 또는 비밀번호가 잘못되었습니다.
         </div>
 
-        <div th:if="${param.logout}" class="error" style="color: green;">
+        <div th:if="${param.logout}" class="logout-message">
             로그아웃되었습니다.
         </div>
 
-        <button type="submit">로그인</button>
+        <button type="submit" class="login-button">로그인</button>
     </form>
 
     <div class="social-login">
         <p>또는 소셜 계정으로 로그인</p>
-        <a href="/oauth2/authorization/google"><button class="social-btn google">G</button></a>
-        <a href="/oauth2/authorization/kakao"><button class="social-btn kakao">K</button></a>
-        <a href="/oauth2/authorization/naver"><button class="social-btn naver">N</button></a>
+        <div class="social-buttons">
+            <a href="/oauth2/authorization/google" class="social-btn google">G</a>
+            <a href="/oauth2/authorization/kakao" class="social-btn kakao">K</a>
+            <a href="/oauth2/authorization/naver" class="social-btn naver">N</a>
+        </div>
     </div>
 
-    <div style="margin-top: 20px; text-align: center;">
+    <div class="signup-link">
         <a th:href="@{/join}">회원가입</a>
     </div>
 </div>
+
+<script>
+    lottie.loadAnimation({
+        container: document.getElementById('wave-animation'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: '/json/mascot.json'
+    });
+</script>
+
 </body>
 </html>

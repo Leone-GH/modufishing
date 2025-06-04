@@ -1,67 +1,99 @@
-import { getSelectedFishTypes, setSelectedFishTypes } from "./modal_state.js";
-
-// ✅ 모달 닫기 함수
-function closeModal(modal) {
-  modal?.classList.remove("show");
-  modal?.classList.add("hidden");
-}
+import {
+  ModalState,
+  injectHiddenInputs,
+  openModal,
+  closeModal,
+  bindModalOutsideClick,
+  getRequiredElements
+} from "./modal_common.js";
 
 /**
  * ✅ 어종 모달 초기화
- * @param {Object} options - 설정 객체
- * @param {Function} options.onApply - 어종 적용 시 실행할 외부 콜백 함수
  */
 export function initFishModal({ onApply } = {}) {
-  const fishBtn = document.getElementById("fishBtn");
-  const fishModal = document.getElementById("fishModal");
-  const fishList = document.getElementById("fishList");
-  const fishApply = document.getElementById("fishApply");
-  const fishReset = document.getElementById("fishReset");
+  const ids = {
+    btn: "fishBtn",
+    modal: "fishModal",
+    list: "fishList",
+    apply: "fishApply",
+    reset: "fishReset",
+    container: "fishTypeInputGroup",
+  };
 
-  if (!fishBtn || !fishModal || !fishList || !fishApply || !fishReset) {
-    console.warn("⚠️ [initFishModal] 필수 요소가 없음. HTML 확인 필요.");
-    return;
-  }
+  const el = getRequiredElements(ids);
+  if (!el) return;
 
   // 🔘 모달 열기
-  fishBtn.addEventListener("click", () => {
-    fishModal.classList.remove("hidden");
-    fishModal.classList.add("show");
-
-    fishList.innerHTML = '';
+  el.btn.addEventListener("click", () => {
+    openModal(el.modal);
+    el.list.innerHTML = "";
 
     fetch("/api/fish-types")
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("어종 데이터 응답 실패");
+        return res.json();
+      })
       .then(data => {
-        data.sort((a, b) => a.localeCompare(b, 'ko'));
+        data.sort((a, b) => a.localeCompare(b, "ko"));
         const grouped = groupByInitial(data);
-        fishList.innerHTML = renderGroupedFish(grouped);
-        attachFishButtonEvents(fishModal);
+        el.list.innerHTML = renderGroupedFish(grouped);
+        attachFishButtonEvents(el.modal);
+      })
+      .catch(err => {
+        console.error("어종 목록 불러오기 실패:", err);
+        el.list.innerHTML = `<p style="color:red;">어종 데이터를 불러오는 데 실패했습니다.</p>`;
       });
   });
 
-  // 🔘 어종 적용
-  fishApply.addEventListener("click", () => {
-    closeModal(fishModal);
-    if (typeof onApply === "function") onApply();
+  // 🔘 적용
+  el.apply.addEventListener("click", () => {
+    injectHiddenInputs(ids.container, "fishTypeNames", ModalState.getFishTypes());
+    closeModal(el.modal);
+    onApply?.();
   });
 
   // 🔘 초기화
-  fishReset.addEventListener("click", () => {
-    setSelectedFishTypes([]);
-    document.querySelectorAll(".fish-type-btn.selected").forEach(btn => btn.classList.remove("selected"));
-    updateSelectedFishTextOnly(fishModal);
-    if (typeof onApply === "function") onApply();
+  el.reset.addEventListener("click", () => {
+    ModalState.setFishTypes([]);
+    el.modal.querySelectorAll(".fish-type-btn.selected").forEach(btn => btn.classList.remove("selected"));
+    onApply?.();
   });
 
-  // ✅ 외부 클릭 시 닫기
-  fishModal.addEventListener("click", (e) => {
-    if (e.target.classList.contains("modal")) {
-      closeModal(fishModal);
-    }
+  // 🔘 외부 클릭으로 닫기
+  bindModalOutsideClick(el.modal);
+}
+
+/**
+ * ✅ 버튼 클릭 시 선택 상태 토글
+ */
+function attachFishButtonEvents(modalRoot) {
+  modalRoot.querySelectorAll(".fish-type-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const value = btn.dataset.fish;
+      const current = ModalState.getFishTypes();
+      let updated = [...current];
+
+      if (current.includes(value)) {
+        updated = updated.filter(v => v !== value);
+        btn.classList.remove("selected");
+      } else {
+        updated.push(value);
+        btn.classList.add("selected");
+      }
+
+      ModalState.setFishTypes(updated);
+
+      const label = modalRoot.querySelector(".current-selection");
+      if (label) {
+        label.textContent = updated.length > 0 ? updated.join(", ") : "선택된 어종 없음";
+      }
+    });
   });
 }
 
+/**
+ * ✅ 초성 기준으로 어종 그룹화
+ */
 function groupByInitial(data) {
   const grouped = {};
   data.forEach(name => {
@@ -72,11 +104,13 @@ function groupByInitial(data) {
   return grouped;
 }
 
+/**
+ * ✅ 그룹 버튼 HTML 렌더링
+ */
 function renderGroupedFish(grouped) {
   return Object.entries(grouped).map(([initial, names]) => {
     const groupHTML = names.map(name => {
-      // 어종이 선택되어 있으면 'selected' 클래스 추가
-      const isSelected = getSelectedFishTypes().includes(name);
+      const isSelected = ModalState.getFishTypes().includes(name);
       return `
         <button class="fish-type-btn ${isSelected ? 'selected' : ''}" data-fish="${name}">${name}</button>
       `;
@@ -90,33 +124,9 @@ function renderGroupedFish(grouped) {
   }).join("");
 }
 
-
-function attachFishButtonEvents(modalRoot) {
-  document.querySelectorAll(".fish-type-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const value = btn.dataset.fish;
-      btn.classList.toggle("selected");
-
-      const types = getSelectedFishTypes();
-      const idx = types.indexOf(value);
-      if (idx !== -1) types.splice(idx, 1);
-      else types.push(value);
-      setSelectedFishTypes(types);
-
-      updateSelectedFishTextOnly(modalRoot);
-    });
-  });
-}
-
-
-function updateSelectedFishTextOnly(modalRoot) {
-  const types = getSelectedFishTypes();
-  const text = types.length > 0 ? types.join(', ') : "선택된 어종 없음";
-  const label = modalRoot.querySelector(".current-selection");
-  if (label) label.textContent = text;
-}
-
-
+/**
+ * ✅ 한글 초성 추출
+ */
 function getInitialConsonant(kor) {
   const initialTable = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
   const uni = kor.charCodeAt(0) - 44032;
@@ -128,7 +138,12 @@ function getInitialConsonant(kor) {
 /**
  * ✅ 조건부 초기화
  */
-export function initFishModalIfExist() {
-  const fishBtn = document.getElementById("fishBtn");
-  if (fishBtn) initFishModal();
+export function initFishModalIfExist({ onApply } = {}) {
+  const requiredIds = ["fishBtn", "fishModal", "fishList", "fishApply", "fishReset"];
+  const allExist = requiredIds.every(id => document.getElementById(id));
+  if (allExist) {
+    initFishModal({ onApply });
+  } else {
+    console.warn("⚠️ [initFishModalIfExist] 필수 요소 누락으로 초기화 생략");
+  }
 }

@@ -3,120 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <title th:text="${post.title}">게시글 보기</title>
-  <link rel="stylesheet" th:href="@{/css/Header.css}">
+  <link rel="stylesheet" th:href="@{/css/header.css}" />
   <script th:src="@{/js/common.js}" defer></script>
+
+  <!-- CSRF 메타 태그 (조건부 렌더링) -->
+  <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}" />
+
   <style>
-    body {
-      background-color: #b2ebf2;
-      font-family: 'Pretendard', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
+    body { background-color: #b2ebf2; font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; }
+    .view-container { max-width: 700px; margin: 4rem auto; background: white; border-radius: 10px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .profile-info { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
+    .profile-thumb { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc; }
+    .content { margin: 1rem 0; line-height: 1.6; white-space: pre-wrap; }
+    .button-group { display: flex; justify-content: space-between; margin-top: 2rem; }
+    .button-group a { padding: 0.5rem 1.2rem; text-decoration: none; border-radius: 5px; font-weight: bold; }
+    .edit-btn { background-color: #0288d1; color: white; }
+    .delete-btn { background-color: #d32f2f; color: white; }
+    .back-btn { background-color: #00796b; color: white; margin-left: auto; }
+    img, video { max-width: 100%; margin-top: 1rem; border-radius: 5px; display: block; }
+    .comment-section { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 1.5rem; }
+    .comment { background-color: #f1f1f1; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .like-button { background: none; border: none; color: #d32f2f; font-size: 1.1rem; cursor: pointer; }
 
-    .view-container {
-      max-width: 700px;
-      margin: 4rem auto;
-      background: white;
-      border-radius: 10px;
-      padding: 2rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      margin-top: 0;
-      color: #00796b;
-    }
-
-    .profile-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 0.5rem;
-    }
-
-    .profile-thumb {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1px solid #ccc;
-    }
-
-    .content {
-      margin: 1rem 0;
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-
-    .button-group {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 2rem;
-    }
-
-    .button-group a {
-      padding: 0.5rem 1.2rem;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-
-    .edit-btn {
-      background-color: #0288d1;
-      color: white;
-    }
-
-    .delete-btn {
-      background-color: #d32f2f;
-      color: white;
-    }
-
-    .back-btn {
-      background-color: #00796b;
-      color: white;
-      margin-left: auto;
-    }
-
-    img, video {
-      max-width: 100%;
-      margin-top: 1rem;
-      border-radius: 5px;
-      display: block;
-    }
-
-    .comment-section {
-      margin-top: 3rem;
-      border-top: 1px solid #ccc;
-      padding-top: 1.5rem;
-    }
-
-    .comment-section h3 {
-      margin-bottom: 1rem;
-      color: #333;
-    }
-
-    .comment {
-      background-color: #f1f1f1;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-
-    .comment strong {
-      font-size: 1rem;
-      color: #00796b;
-    }
-
-    .comment p {
-      margin: 0.5rem 0;
-      font-size: 1rem;
-    }
-
-    .comment small {
-      color: #777;
-      font-size: 0.85rem;
-    }
-
+    /* 댓글 폼 및 버튼 스타일 */
     textarea, input[type="text"] {
       width: 100%;
       padding: 0.5rem;
@@ -126,7 +36,6 @@
       font-family: inherit;
       box-sizing: border-box;
     }
-
     .comment-form button {
       margin-top: 0.8rem;
       background-color: #0288d1;
@@ -137,7 +46,6 @@
       font-weight: bold;
       cursor: pointer;
     }
-
     .comment-form button:hover {
       background-color: #0277bd;
     }
@@ -156,10 +64,14 @@
 
   <div class="content" th:text="${post.content}">내용</div>
 
-  <!-- 첨부 미디어 -->
-  <div>
-    <img th:if="${post.imagePath != null}" th:src="@{${post.imagePath}}" alt="첨부 이미지">
-    <video th:if="${post.videoPath != null}" th:src="@{${post.videoPath}}" controls></video>
+  <div th:if="${post.imagePath != null}">
+    <div th:each="imgPath : ${#strings.arraySplit(post.imagePath, ',')}">
+      <img th:src="@{${imgPath}}" alt="첨부 이미지" />
+    </div>
+  </div>
+
+  <div th:if="${post.videoPath != null}">
+    <video th:src="@{${post.videoPath}}" controls></video>
   </div>
 
   <div class="button-group">
@@ -176,6 +88,11 @@
         <strong th:text="${comment.writer}">작성자</strong>
         <p th:text="${comment.content}">내용</p>
         <small th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">작성일</small>
+        <button type="button" class="like-button"
+                th:id="'likeBtn_' + ${comment.id}"
+                th:data-id="${comment.id}">
+          ❤️ <span th:id="'likeCount_' + ${comment.id}" th:text="${comment.likeCount}">0</span>
+        </button>
       </div>
     </div>
 
@@ -193,6 +110,43 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+    const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+    const csrfToken = csrfTokenMeta ? csrfTokenMeta.content : null;
+    const csrfHeader = csrfHeaderMeta ? csrfHeaderMeta.content : null;
+
+    const headers = {
+      "Content-Type": "application/json"
+    };
+    if (csrfToken && csrfHeader) {
+      headers[csrfHeader] = csrfToken;
+    }
+
+    document.querySelectorAll(".like-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const commentId = btn.dataset.id;
+        fetch("/comments/like/" + commentId, {
+          method: "POST",
+          headers: headers
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("네트워크 오류 또는 권한 문제");
+          return res.text();
+        })
+        .then(count => {
+          console.log("👍 좋아요 응답:", count);
+          document.getElementById("likeCount_" + commentId).innerText = count;
+        })
+        .catch(err => {
+          console.error("하트 클릭 실패:", err);
+        });
+      });
+    });
+  });
+</script>
 
 </body>
 </html>

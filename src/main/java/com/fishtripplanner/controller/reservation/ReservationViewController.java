@@ -3,7 +3,6 @@ package com.fishtripplanner.controller.reservation;
 import com.fishtripplanner.api.reservation.ReservationService;
 import com.fishtripplanner.domain.reservation.ReservationPost;
 import com.fishtripplanner.domain.reservation.ReservationType;
-import com.fishtripplanner.domain.reservation.mapper.ReservationTypeMapper;
 import com.fishtripplanner.dto.reservation.ReservationCardDto;
 import com.fishtripplanner.dto.reservation.ReservationDetailResponseDto;
 import com.fishtripplanner.repository.ReservationPostRepository;
@@ -23,7 +22,9 @@ public class ReservationViewController {
     private final ReservationPostRepository reservationPostRepository;
     private final ReservationService reservationService;
 
-    // 기본 예약 진입 페이지
+    /**
+     * ✅ 기본 예약 메인 페이지
+     */
     @GetMapping("")
     public String reservationPage(Model model) {
         List<ReservationPost> posts = reservationPostRepository.findAll();
@@ -31,7 +32,9 @@ public class ReservationViewController {
         return "reservation";
     }
 
-    // 예약 타입별 상세 페이지 (예: /reservation/boat)
+    /**
+     * ✅ 예약 타입별 상세 리스트 페이지 (예: /reservation/boat)
+     */
     @GetMapping("/{type}")
     public String reservationDetailPage(@PathVariable("type") String type,
                                         @RequestParam(name = "page", defaultValue = "0") int page,
@@ -40,26 +43,24 @@ public class ReservationViewController {
         try {
             enumType = ReservationType.valueOf(type.toUpperCase());
         } catch (IllegalArgumentException e) {
-            return "redirect:/error";
+            return "redirect:/error"; // 잘못된 타입 요청 시 에러 페이지로
         }
 
-        String koreanTitle = ReservationTypeMapper.toKorean(enumType); // ✅ 깔끔하게 변경됨
-        model.addAttribute("title", koreanTitle);
-        model.addAttribute("type", type); // 페이징 링크에 사용됨
+        // ✅ enum 내부 getKorean() 사용 (매퍼 제거됨)
+        model.addAttribute("title", enumType.getKorean());
+        model.addAttribute("type", type); // 페이징 링크 등에서 필요
 
-        // 실제 예약 카드 생성
+        // ✅ 타입 필터링된 예약글 가져오기
         List<ReservationPost> filteredPosts = reservationPostRepository.findByType(enumType);
-        List<Object> allCards = new ArrayList<>();
-        for (ReservationPost post : filteredPosts) {
-            allCards.add(ReservationCardDto.from(post));
-        }
+        List<ReservationCardDto> allCards = filteredPosts.stream()
+                .map(ReservationCardDto::from)
+                .toList();
 
-        // 페이징 처리
+        // ✅ 페이징 처리
         int pageSize = 4;
         int start = page * pageSize;
         int end = Math.min(start + pageSize, allCards.size());
 
-        // ✅ 잘못된 범위 예외 방지
         if (start >= allCards.size()) {
             model.addAttribute("cards", new ArrayList<ReservationCardDto>());
             model.addAttribute("currentPage", 0);
@@ -67,9 +68,8 @@ public class ReservationViewController {
             return "reservation_page/reservation_list";
         }
 
-        List<Object> pagedCards = allCards.subList(start, end);
+        List<ReservationCardDto> pagedCards = allCards.subList(start, end);
 
-        // 모델에 카드 리스트 추가
         model.addAttribute("cards", pagedCards);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", (int) Math.ceil((double) allCards.size() / pageSize));
@@ -77,24 +77,9 @@ public class ReservationViewController {
         return "reservation_page/reservation_list";
     }
 
-
-    // 지역 필터용 API
-    @RestController
-    @RequestMapping("/api")
-    public class FilterApiController {
-
-        private final ReservationPostRepository repo;
-
-        public FilterApiController(ReservationPostRepository repo) {
-            this.repo = repo;
-        }
-
-        @GetMapping("/regions")
-        public List<String> getRegions() {
-            return repo.findAllRegionNames();  // ✅ 올바른 메서드 이름
-        }
-    }
-
+    /**
+     * ✅ 예약 상세 페이지 조회
+     */
     @GetMapping("/detail/{id}")
     public String getReservationDetail(@PathVariable("id") Long id, Model model) {
         ReservationDetailResponseDto dto = reservationService.getReservationDetail(id);
@@ -102,6 +87,19 @@ public class ReservationViewController {
         return "reservation_page/reservation_detail";
     }
 
+    /**
+     * ✅ 지역 목록 조회 API (필터용)
+     */
+    @RestController
+    @RequestMapping("/reservation/api")
+    @RequiredArgsConstructor
+    public static class FilterApiController {
 
+        private final ReservationPostRepository repo;
 
+        @GetMapping("/regions")
+        public List<String> getRegions() {
+            return repo.findAllRegionNames();
+        }
+    }
 }

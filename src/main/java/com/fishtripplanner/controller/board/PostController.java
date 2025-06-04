@@ -13,16 +13,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -39,7 +42,7 @@ public class PostController {
                        @RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "keyword", required = false) String keyword) {
 
-        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdAt")); // 페이지당 5개 게시글
+        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Post> posts = (keyword != null && !keyword.isEmpty())
                 ? postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
                 : postRepository.findAll(pageable);
@@ -59,7 +62,7 @@ public class PostController {
 
     @PostMapping
     public String save(@ModelAttribute Post post,
-                       @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                       @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
                        @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
                        @RequestParam(value = "profileImageFile", required = false) MultipartFile profileImageFile,
                        @AuthenticationPrincipal Object principal) {
@@ -77,9 +80,22 @@ public class PostController {
             if (profileImageFile != null && !profileImageFile.isEmpty()) {
                 post.setProfileImagePath("/uploads/" + storeFile(profileImageFile));
             }
-            if (imageFile != null && !imageFile.isEmpty()) {
-                post.setImagePath("/uploads/" + storeFile(imageFile));
+
+            if (imageFiles != null && !imageFiles.isEmpty()) {
+                List<String> imagePaths = imageFiles.stream()
+                        .filter(file -> !file.isEmpty())
+                        .map(file -> {
+                            try {
+                                return "/uploads/" + storeFile(file);
+                            } catch (IOException e) {
+                                throw new RuntimeException("이미지 저장 중 오류 발생", e);
+                            }
+                        })
+                        .collect(Collectors.toList());
+
+                post.setImagePath(String.join(",", imagePaths));
             }
+
             if (videoFile != null && !videoFile.isEmpty()) {
                 post.setVideoPath("/uploads/" + storeFile(videoFile));
             }
@@ -113,8 +129,10 @@ public class PostController {
 
     @Transactional
     @GetMapping("/{id}")
-    public String view(@PathVariable("id") Long id, Model model,
-                       @AuthenticationPrincipal Object principal) {
+    public String view(@PathVariable("id") Long id,
+                       Model model,
+                       @AuthenticationPrincipal Object principal,
+                       HttpServletRequest request) {
 
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
@@ -124,6 +142,12 @@ public class PostController {
         List<Comment> comments = commentRepository.findByPostIdOrderByCreatedAtAsc(id);
         model.addAttribute("post", post);
         model.addAttribute("comments", comments);
+
+        // ✅ CSRF 토큰 명시적 주입
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
 
         return "board/view";
     }

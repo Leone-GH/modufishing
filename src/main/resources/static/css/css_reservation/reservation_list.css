@@ -3,7 +3,7 @@ body {
   font-family: sans-serif;
   font-size: clamp(15px, 1.4vw, 18px);
   margin: 0;
-  padding: 0; /* ✅ 요거 0으로!! header 내려가는 문제 해결 */
+  padding: 0; /* header 내려감 방지 */
 }
 
 /* ✅ 페이지 제목 */
@@ -36,7 +36,7 @@ h1 {
   align-items: center;
   width: clamp(160px, 18vw, 200px);
   gap: 8px;
-  position: relative; /* 🔥 정렬 드롭다운 기준 잡기용 */
+  position: relative;
 }
 
 .filter-group button {
@@ -98,10 +98,10 @@ h1 {
   text-align: center;
 }
 
-/* ✅ 카드 이미지 영역 (비율 유지 및 좌우 꽉 채움) */
+/* ✅ 카드 이미지 영역 */
 .ad-image {
   width: 100%;
-  aspect-ratio: 16 / 9; /* ✅ 비율 고정 */
+  aspect-ratio: 16 / 9;
   overflow: hidden;
 }
 
@@ -189,3 +189,4 @@ h1 {
 .hidden {
   display: none;
 }
+

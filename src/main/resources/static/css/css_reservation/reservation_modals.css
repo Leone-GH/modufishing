@@ -1,4 +1,4 @@
-/* ✅ 모달 공통 (지역, 날짜 선택) */
+/* ✅ 모달 배경 */
 .modal {
   position: fixed;
   top: 0;
@@ -15,27 +15,137 @@
   transition: opacity 0.3s ease;
 }
 
-.show {
+.modal.show {
   display: flex !important;
+  opacity: 1;
+  pointer-events: auto;
 }
 
+/* ✅ 모달 컨텐츠 */
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  width: 90vh;
-  max-height: 80%;
+  background: #fff;
+  padding: 28px 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
-/* ✅ 지역 선택 모달 내부 구조 */
+/* ✅ 공통 버튼 스타일 */
+.modal-btn {
+  background: #f4f4f4;
+  color: #333;
+  padding: 8px 18px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  font-size: 14px;
+  min-width: 90px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.modal-btn:hover {
+  background-color: #ddd;
+}
+
+/* ✅ 달력 컨테이너 */
+#datePickerContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 320px;
+  padding: 10px;
+  box-sizing: border-box;
+  margin-bottom: 20px; /* 아래 간격 확보 */
+}
+
+/* ✅ 달력 사이즈 및 위치 */
+.flatpickr-calendar {
+  transform: scale(1.2);
+  transform-origin: center;
+  z-index: 1001;
+}
+
+/* ✅ 요일 강조 */
+.flatpickr-day.sunday {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.flatpickr-day.saturday {
+  color: #3498db;
+  font-weight: bold;
+}
+
+/* ✅ 날짜 라벨 및 입력 필드 출력 공통 스타일 */
+.date-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  background-color: #f4f8ff;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccddee;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.date-entry label,
+.date-entry .date-label {
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+}
+
+.date-entry input[type="text"],
+.date-entry input[type="number"] {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.date-entry input[type="number"] {
+  width: 80px;
+}
+
+.date-entry input[type="text"] {
+  width: 150px;
+}
+
+/* ✅ 삭제 버튼 스타일 */
+.remove-date {
+  background: transparent;
+  border: none;
+  color: #e74c3c;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 6px;
+}
+
+.remove-date:hover {
+  opacity: 0.7;
+}
+
+/* ✅ 지역 선택 구조 */
 .region-group {
   margin-bottom: 20px;
 }
 
 .region-title {
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: 15px;
 }
 
 .region-children {
@@ -47,10 +157,11 @@
 
 .region-child-btn {
   padding: 6px 10px;
-  border: 2px solid #aaa;
-  background-color: #f2f2f2;
-  border-radius: 5px;
+  border: 2px solid #bbb;
+  background-color: #f9f9f9;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .region-child-btn:hover {
@@ -61,90 +172,18 @@
   background-color: #007bff;
   color: white;
   font-weight: bold;
-  border: 2px solid #0056b3;
+  border-color: #0056b3;
 }
 
-/* 초기화 버튼 스타일 */
-#regionReset {
-  background: #eee;
-  color: #333;
-  padding: 6px 14px;
-  border: 1px solid #aaa;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-/* ✅ 달력 관련 */
-#datePickerContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-  min-height: 450px;
-  min-width: 450px;
-  position: relative; /* ⚠️ 필수: appendTo 대상은 위치 기준 잡기 위해 relative 필요 */
-}
-
-.flatpickr-calendar {
-  font-size: 18px;
-  transform-origin: center center;
-  transition: none !important;
-  opacity: 1 !important;
-  overflow: hidden;
-}
-
-@media (min-width: 768px) {
-  .flatpickr-calendar {
-    scale: 1.3; /* zoom 대신 scale */
-  }
-}
-
-
-
-/* ✅ 요일 색상 지정 */
-.flatpickr-day.sunday {
-  color: #e74c3c;  /* 연한 빨강 */
-  font-weight: 500;
-}
-
-.flatpickr-day.saturday {
-  color: #3498db;  /* 연한 파랑 */
-  font-weight: 500;
-}
-
-/* ✅ 어종 선택 스타일 */
-.fish-type-btn {
-  padding: 6px 10px;
-  border: 2px solid #aaa;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 4px;
-  font-size: 15px;
-}
-
-.fish-type-btn:hover {
-  background-color: #e0e0e0;
-}
-
-.fish-type-btn.selected {
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
-  border: 2px solid #0056b3;
-}
-
-/* ✅ 초성 그룹별 줄바꿈 정렬을 위한 스타일 */
+/* ✅ 어종 선택 구조 */
 .fish-group {
-  display: block;
-  margin-bottom: 25px;
+  margin-bottom: 24px;
 }
 
 .fish-group-title {
-  display: block;
-  margin-bottom: 8px;
+  font-size: 17px;
   font-weight: bold;
-  font-size: 18px;
+  margin-bottom: 6px;
 }
 
 .fish-group-body {
@@ -153,23 +192,36 @@
   gap: 8px;
 }
 
+.fish-type-btn {
+  padding: 7px 11px;
+  border: 2px solid #bbb;
+  background-color: #fafafa;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.fish-type-btn:hover {
+  background-color: #e6e6e6;
+}
+
+.fish-type-btn.selected {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  border-color: #0056b3;
+}
+
+/* ✅ 기타 모달 내부 패딩 */
 .fish-modal-body {
-  display: block;
   padding: 10px;
 }
 
-.modal.show {
-  display: flex !important;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ✅ 예약 작성 페이지에서 달력을 좌상단으로 강제 배치 */
-#datePickerContainer .custom-datepicker-position {
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  transform: none !important;
-  margin-top: 5px;
-  z-index: 9999;
+/* ✅ 현재 선택 표시 */
+.current-selection {
+  margin-top: 12px;  /* 달력과의 간격 확보 */
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  text-align: center;
 }

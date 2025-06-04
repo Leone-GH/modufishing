@@ -1,30 +1,52 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="regionAndFishModals">
+<div th:fragment="regionFishDateModals">
+
+  <!-- ✅ 지역 선택 모달 -->
   <div id="regionModal" class="modal hidden">
     <div class="modal-content">
       <h2>지역 선택</h2>
       <div id="regionList" class="region-modal-body"></div>
-      <div class="current-selection">선택된 지역 없음</div>
-      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-        <button id="regionApply">적용</button>
-        <button id="regionReset">초기화</button>
+      <div class="modal-actions">
+        <button id="regionApply" class="modal-btn">적용</button>
+        <button id="regionReset" class="modal-btn">초기화</button>
+        <button id="regionCancel" class="modal-btn">취소</button>
       </div>
     </div>
   </div>
 
+  <!-- ✅ 어종 선택 모달 -->
   <div id="fishModal" class="modal hidden">
     <div class="modal-content">
       <h2>어종 선택</h2>
       <div id="fishList" class="fish-modal-body"></div>
-      <div class="current-selection">선택된 어종 없음</div>
-      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-        <button id="fishApply">적용</button>
-        <button id="fishReset">초기화</button>
+      <div class="modal-actions">
+        <button id="fishApply" class="modal-btn">적용</button>
+        <button id="fishReset" class="modal-btn">초기화</button>
+        <button id="fishCancel" class="modal-btn">취소</button>
       </div>
     </div>
   </div>
+
+  <!-- 날짜 선택 모달 -->
+  <div id="dateModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>날짜 선택</h2>
+
+      <div id="datePickerContainer"></div>
+
+      <!-- id 통일 & data-form-mode로 분기 -->
+      <div id="dateContainer" data-form-mode="false" class="date-extra-fields"></div>
+
+      <div class="modal-actions">
+        <button id="dateApply" class="modal-btn">적용</button>
+        <button id="dateReset" class="modal-btn">초기화</button>
+        <button id="dateCancel" class="modal-btn">취소</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 </body>
 </html>

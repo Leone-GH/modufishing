@@ -8,7 +8,8 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "fish_type")
-public class FishTypeEntity {
+public class
+FishTypeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

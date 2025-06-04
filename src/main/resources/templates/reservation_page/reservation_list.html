@@ -6,13 +6,13 @@
 
 <head>
   <meta charset="UTF-8">
-  <title layout:fragment="title" th:text="${title}">예약 목록</title>
+  <title th:text="${title}">예약 목록</title>
 
   <!-- ✅ CSS -->
   <th:block layout:fragment="add-css">
     <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_list.css}">
-    <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_modals.css}">
-    <link rel="stylesheet" th:href="@{'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css'}">
+    <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_modals.css}"> <!-- ✅ 여기를 th:href로 수정 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   </th:block>
 </head>
 
@@ -21,20 +21,15 @@
 
   <h1 th:text="${title}">예약</h1>
 
-  <div class="filter-container">
+  <!-- ✅ 필터 영역 -->
+  <section class="filter-container">
     <div class="filter-top-group">
-      <div class="filter-group">
-        <button id="regionBtn">지역 선택하기</button>
-      </div>
-      <div class="filter-group">
-        <button id="dateBtn">날짜 선택하기</button>
-      </div>
-      <div class="filter-group">
-        <button id="fishBtn">어종 선택하기</button>
-      </div>
+      <div class="filter-group"><button id="regionBtn">지역 선택</button></div>
+      <div class="filter-group"><button id="dateBtn">날짜 선택</button></div>
+      <div class="filter-group"><button id="fishBtn">어종 선택</button></div>
       <div class="filter-group">
         <button id="sortBtn">정렬기준</button>
-        <div id="sortOptions" class="sort-options hidden">
+        <div id="sortOptions" class="sort-options hidden" role="menu" aria-label="정렬 옵션">
           <button data-sort="latest">최신순</button>
           <button data-sort="priceAsc">가격 낮은순</button>
           <button data-sort="priceDesc">가격 높은순</button>
@@ -43,31 +38,38 @@
     </div>
 
     <div class="search-row">
-      <input type="text" id="searchInput" placeholder="검색창" class="search-input">
-      <button id="searchButton" class="search-button">검색하기</button>
+      <input type="text" id="searchInput" class="search-input" placeholder="검색창">
+      <button id="searchButton" class="search-button">검색</button>
     </div>
 
     <div id="selectedInfo" class="selected-info"></div>
-  </div>
+    <div id="regionIdsInput"></div>
+    <div id="dateContainer" data-form-mode="false"></div>
+    <div id="fishTypeInputGroup"></div>
+  </section>
 
+  <!-- ✅ 카드 리스트 -->
   <div class="ad-card-list" id="cardContainer">
-    <div class="ad-card" th:each="card : ${cards}" th:if="${card instanceof T(com.fishtripplanner.dto.reservation.ReservationCardDto)}">
+    <div class="ad-card"
+         th:each="card : ${cards}"
+         th:if="${card instanceof T(com.fishtripplanner.dto.reservation.ReservationCardDto)}">
       <a th:href="@{'/reservation/detail/' + ${card.id}}" class="ad-card-link">
         <div class="ad-image">
-          <img th:src="@{${card.imageUrl}}" alt="예약 이미지">
+          <img th:src="${card.imageUrl != null and !card.imageUrl.isEmpty()} ? @{${card.imageUrl}} : @{'/images/' + ${card.typeLower} + '.jpg'}"
+               alt="예약 이미지" />
         </div>
         <div class="ad-desc" th:text="${card.title}">제목</div>
         <div class="ad-detail">
-          <p th:text="${card.region != null ? card.region : '없음'}">지역</p>
-          <p th:text="'회사명: ' + ${card.companyName}">회사명</p>
-          <p th:text="'어종: ' + ${#strings.arrayJoin(card.fishTypes.toArray(), ', ')}">어종</p>
-          <p th:text="${card.content}">내용</p>
+          <p th:text="${card.companyName}">회사명</p>
+          <p th:text="${card.region}">지역</p>
+          <p th:text="${#strings.arrayJoin(card.fishTypes.toArray(), ', ')}">어종</p>
         </div>
       </a>
     </div>
   </div>
 
-  <div class="pagination">
+  <!-- ✅ 페이지네이션 -->
+  <nav class="pagination">
     <span th:if="${currentPage > 0}">
       <a th:href="@{'/reservation/' + ${type} + '?page=' + (${currentPage - 1})}">이전</a>
     </span>
@@ -79,55 +81,19 @@
     <span th:if="${currentPage < totalPages - 1}">
       <a th:href="@{'/reservation/' + ${type} + '?page=' + (${currentPage + 1})}">다음</a>
     </span>
-  </div>
+  </nav>
 
-  <!-- ✅ 지역 모달 -->
-  <div id="regionModal" class="modal hidden">
-    <div class="modal-content">
-      <h2>지역 선택</h2>
-      <div id="regionList" class="region-modal-body"></div>
-      <div class="current-selection">선택된 지역 없음</div>
-      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-        <button id="regionApply">적용</button>
-        <button id="regionReset">초기화</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ✅ 날짜 모달 -->
-  <div id="dateModal" class="modal hidden">
-    <div class="modal-content">
-      <h2>날짜 선택</h2>
-      <div id="datePickerContainer"></div>
-      <div class="current-selection">선택된 날짜 없음</div>
-      <div style="margin-top: 20px; text-align: center;">
-        <button id="dateApply">적용</button>
-        <button id="dateCancel">취소</button>
-        <button id="dateReset">초기화</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ✅ 어종 모달 -->
-  <div id="fishModal" class="modal hidden">
-    <div class="modal-content">
-      <h2>어종 선택</h2>
-      <div id="fishList" class="fish-modal-body"></div>
-      <div class="current-selection">선택된 어종 없음</div>
-      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-        <button id="fishApply">적용</button>
-        <button id="fishReset">초기화</button>
-      </div>
-    </div>
-  </div>
+  <!-- ✅ 공통 모달 프래그먼트 include -->
+  <div th:replace="fragments/modals :: regionFishDateModals"></div>
 
 </main>
 
 <!-- ✅ JS -->
 <th:block layout:fragment="add-js">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js" defer></script>
   <script type="module" src="/js/reservation_list.js"></script>
 </th:block>
+
 </body>
 </html>

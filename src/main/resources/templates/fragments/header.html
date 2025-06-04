@@ -3,15 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Header</title>
-    <style>
-        .navRight .menuButton {
-            margin-right: 10px;
-        }
-
-        .navRight .menuButton:last-child {
-            margin-right: 0;
-        }
-    </style>
 </head>
 <body>
 <div th:fragment="headerFragment">
@@ -19,12 +10,16 @@
         <div class="logoArea">
             <a href="/" class="logoText">🎣 FishTrip</a>
         </div>
+
+        <!-- ✅ 검색창 구조 수정 -->
         <div class="searchBoxWrapper">
-            <input type="text" placeholder="검색어를 입력하세요..." class="searchInput"/>
-            <button class="searchButton">🔍</button>
+            <form th:action="@{/search}" method="get" class="searchForm">
+                <input type="text" name="keyword" placeholder="검색어를 입력하세요..." class="searchInput" />
+                <button type="submit" class="searchButton" aria-label="검색">🔍</button>
+            </form>
         </div>
+
         <div class="rightIcons">
-            <!-- ✅ 수정된 부분 -->
             <button class="iconButton" onclick="navigatePage('/profile')">
                 <span>👤</span>
                 <div class="iconLabel">내정보</div>
@@ -51,10 +46,6 @@
                     <div class="subMenu" id="subMenu1" style="display: none;">
                         <ul class="subMenuList">
                             <a th:href="@{/party/create}" class="subMenuButton">파티모집글 작성하기</a>
-                            <li class="subMenuItem"><a href="#" class="subMenuButton"
-                                                       onclick="navigatePage('/fishing-party/list')">모집 1</a></li>
-                            <li class="subMenuItem"><a href="#" class="subMenuButton"
-                                                       onclick="navigatePage('/fishing-party/create')">모집 2</a></li>
                         </ul>
                     </div>
                 </li>
@@ -62,10 +53,8 @@
                     <button class="menuButton">지금 모집중!</button>
                     <div class="subMenu" id="subMenu2" style="display: none;">
                         <ul class="subMenuList">
-                            <li class="subMenuItem"><a href="#" class="subMenuButton"
-                                                       onclick="navigatePage('/recruiting/ongoing')">모집 1</a></li>
-                            <li class="subMenuItem"><a href="#" class="subMenuButton"
-                                                       onclick="navigatePage('/recruiting/popular')">모집 2</a></li>
+                            <li class="subMenuItem"><a href="#" class="subMenuButton" onclick="navigatePage('/recruiting/ongoing')">모집 1</a></li>
+                            <li class="subMenuItem"><a href="#" class="subMenuButton" onclick="navigatePage('/recruiting/popular')">모집 2</a></li>
                         </ul>
                     </div>
                 </li>
@@ -73,10 +62,8 @@
                     <button class="menuButton">계획짜기!</button>
                     <div class="subMenu" id="subMenu3" style="display: none;">
                         <ul class="subMenuList">
-                            <li class="subMenuItem"><a href="#" class="subMenuButton"
-                                                       onclick="navigatePage('/plan/new')">계획 1</a></li>
-                            <li class="subMenuItem"><a href="#" class="subMenuButton"
-                                                       onclick="navigatePage('/plan/my-plans')">계획 2</a></li>
+                            <li class="subMenuItem"><a href="#" class="subMenuButton" onclick="navigatePage('/plan/new')">계획 1</a></li>
+                            <li class="subMenuItem"><a href="#" class="subMenuButton" onclick="navigatePage('/plan/my-plans')">계획 2</a></li>
                         </ul>
                     </div>
                 </li>
@@ -84,8 +71,7 @@
                     <button class="menuButton">날씨/풍속/조류!</button>
                     <div class="subMenu" id="subMenu4" style="display: none;">
                         <ul class="subMenuList">
-                            <li class="subMenuItem"><a href="#" class="subMenuButton"
-                                                       onclick="navigatePage('/weather')">해양날씨</a></li>
+                            <li class="subMenuItem"><a href="#" class="subMenuButton" onclick="navigatePage('/weather')">해양날씨</a></li>
                         </ul>
                     </div>
                 </li>
@@ -101,8 +87,6 @@
         </div>
 
         <div class="navRight">
-
-            <!-- ✅ 사업자 전용 메뉴 -->
             <div sec:authorize="hasRole('OWNER')">
                 <button class="menuButton" onclick="navigatePage('/reservation/write')">예약글 작성(사업자용)</button>
             </div>
@@ -117,7 +101,6 @@
                 <a th:href="@{/login}" class="menuButton" style="text-decoration: none; margin-right: 10px;">로그인</a>
                 <a th:href="@{/join/oauth}" class="menuButton" style="text-decoration: none;">회원가입</a>
             </div>
-
         </div>
     </nav>
 

@@ -12,89 +12,85 @@
     <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_detail.css}">
   </th:block>
 
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    window.currentUserId = [[${#authentication?.principal?.user?.id}]];
+    /*]]>*/
+  </script>
 </head>
 
 <body>
 <main layout:fragment="content">
-<div class="reservation-detail-container">
+  <div class="reservation-detail-container">
 
-  <!-- ✅ 예약 제목 및 대표 이미지 -->
-  <div class="summary-section">
-    <h1 th:text="${reservation.title}" class="reservation-title">예약 제목</h1>
+    <!-- ✅ 예약 제목 및 대표 이미지 -->
+    <div class="summary-section">
+      <h1 class="reservation-title" th:text="${reservation.title}">예약 제목</h1>
 
-    <div class="image-wrapper">
-      <!-- ✅ 이미지가 있을 경우 -->
-      <img th:if="${reservation.imageUrl != null and !reservation.imageUrl.isEmpty()}"
-           th:src="@{${reservation.imageUrl}}"
-           alt="예약 이미지" class="reservation-image"/>
+      <div class="image-wrapper">
+        <img th:if="${reservation.imageUrl != null and !reservation.imageUrl.isEmpty()}"
+             th:src="@{${reservation.imageUrl}}"
+             alt="예약 이미지" class="reservation-image"/>
 
-      <!-- ✅ 이미지가 없을 경우 → 예약 타입 기반 기본 이미지로 처리 -->
-      <img th:unless="${reservation.imageUrl != null and !reservation.imageUrl.isEmpty()}"
-           th:src="@{'/images/' + ${reservation.typeLower} + '.jpg'}"
-           alt="기본 이미지" class="reservation-image"/>
+        <img th:unless="${reservation.imageUrl != null and !reservation.imageUrl.isEmpty()}"
+             th:src="@{'/images/' + ${reservation.typeLower} + '.jpg'}"
+             alt="기본 이미지" class="reservation-image"/>
+      </div>
     </div>
-  </div>
 
-  <!-- ✅ 예약 기본 정보 -->
-  <div class="basic-info">
-    <p><strong>지역:</strong> <span th:text="${reservation.regionName}">지역명</span></p>
-    <p><strong>회사명:</strong> <span th:text="${reservation.companyName}">회사명</span></p>
-    <p><strong>예약 유형:</strong> <span th:text="${reservation.typeKorean}">선상</span></p>
-    <p><strong>가격:</strong> <span th:text="${#numbers.formatInteger(reservation.price, 3, 'COMMA')} + '원'">가격</span></p>
-    <p><strong>어종:</strong> <span th:text="${#strings.arrayJoin(reservation.fishTypes, ', ')}">문어, 광어</span></p>
-  </div>
+    <!-- ✅ 예약 기본 정보 -->
+    <div class="basic-info">
+      <p><strong>지역:</strong> <span th:text="${#strings.arrayJoin(reservation.regionNames, ', ')}">지역명</span></p>
+      <p><strong>회사명:</strong> <span th:text="${reservation.companyName}">회사명</span></p>
+      <p><strong>예약 유형:</strong> <span th:text="${reservation.typeKorean}">선상</span></p>
+      <p><strong>가격:</strong> <span th:text="${#numbers.formatInteger(reservation.price, 3, 'COMMA')} + '원'">가격</span></p>
+      <p><strong>어종:</strong> <span th:text="${#strings.arrayJoin(reservation.fishTypes, ', ')}">문어, 광어</span></p>
+    </div>
 
-  <!-- ✅ 예약 가능 날짜 리스트 -->
-  <div class="available-dates-section">
-    <h2>예약 가능 날짜</h2>
-    <div class="date-list">
-      <div th:each="date : ${reservation.availableDates}" class="date-item-row">
-        <!-- 날짜 박스 -->
-        <div class="date-box">
-          <span class="date-text" th:text="${date.date}">2025-05-09</span>
-        </div>
-
-        <!-- 내용 박스 -->
-        <div class="info-box">
-          <p><strong>운항 시간:</strong> 06:00 ~ 16:30</p> <!-- 고정 또는 나중에 동적 처리 -->
-          <p><strong>포함사항:</strong> 장비 대여, 보험 등</p> <!-- 필요 시 수정 -->
-        </div>
-
-        <!-- 예약 및 자리 -->
-        <div class="action-box">
-          <p class="remaining" th:text="'남은 자리: ' + ${date.remaining} + '명'">남은 자리: 10명</p>
-          <button
-                  class="reserve-button"
-                  th:data-post-id="${reservation.id}"
-                  th:data-date="${date.date}"
-                  th:data-remaining="${date.remaining}">
-            예약하기
-          </button>
+    <!-- ✅ 예약 가능 날짜 리스트 -->
+    <div class="available-dates-section">
+      <h2>예약 가능 날짜</h2>
+      <div class="date-list">
+        <div class="date-item-row" th:each="date : ${reservation.availableDates}">
+          <div class="date-box">
+            <span class="date-text" th:text="${date.date}">2025-05-09</span>
+          </div>
+          <div class="info-box">
+            <p><strong>운항 시간:</strong> <span th:text="${date.time ?: '06:00 ~ 16:30'}">06:00 ~ 16:30</span></p>
+            <p><strong>포함사항:</strong> <span>장비 대여, 보험 등</span></p> <!-- 고정 텍스트로 -->
+          </div>
+          <div class="action-box">
+            <p class="remaining" th:text="'남은 자리: ' + ${date.remaining} + '명'">남은 자리: 10명</p>
+            <button class="reserve-button"
+                    th:data-post-id="${reservation.id}"
+                    th:data-date="${date.date}"
+                    th:data-remaining="${date.remaining}">
+              예약하기
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ✅ 상세 설명 -->
-  <div class="description-section">
-    <h2>상세 설명</h2>
-    <p th:text="${reservation.content}">여기에 상세 설명이 들어갑니다.</p>
-  </div>
+    <!-- ✅ 상세 설명 -->
+    <div class="description-section">
+      <h2>상세 설명</h2>
+      <p th:text="${reservation.content}">여기에 상세 설명이 들어갑니다.</p>
+    </div>
 
-  <!-- ✅ 뒤로가기 -->
-  <div class="back-link-container">
-    <a th:href="@{'/reservation/' + ${#strings.toLowerCase(reservation.type)}}" class="back-link">
-      ← 목록으로 돌아가기
-    </a>
-  </div>
+    <!-- ✅ 뒤로가기 -->
+    <div class="back-link-container">
+      <a th:href="@{'/reservation/' + ${reservation.typeLower}}" class="back-link">
+        ← 목록으로 돌아가기
+      </a>
+    </div>
 
-</div>
+  </div>
 </main>
 </body>
 
 <th:block layout:fragment="add-js">
-  <!-- 필요 시 JS 추가 -->
-  <script th:src="@{/js/reservation_detail.js}"></script>
+  <script th:src="@{/js/reservation_detail.js}" defer></script>
 </th:block>
 
 </html>

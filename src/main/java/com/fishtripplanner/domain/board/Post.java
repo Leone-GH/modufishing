@@ -24,8 +24,14 @@ public class Post extends BaseTimeEntity {
     @Column(nullable = false)
     private String writer;
 
+    /**
+     * 여러 이미지 경로를 ','로 구분하여 저장
+     * ex: /uploads/abc.jpg,/uploads/def.jpg
+     */
     private String imagePath;
+
     private String videoPath;
+
     private String profileImagePath;
 
     @Column(nullable = false)

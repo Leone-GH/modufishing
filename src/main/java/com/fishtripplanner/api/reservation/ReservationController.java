@@ -1,23 +1,20 @@
 package com.fishtripplanner.api.reservation;
 
-
 import com.fishtripplanner.dto.reservation.CreateReservationRequestDto;
 import com.fishtripplanner.dto.reservation.ReservationResponseDto;
 import com.fishtripplanner.domain.reservation.ReservationStatus;
 import com.fishtripplanner.dto.ReservationPostRequest;
 import com.fishtripplanner.dto.ReservationPostResponse;
 import com.fishtripplanner.security.CustomUserDetails;
+import com.fishtripplanner.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
 public class ReservationController {
@@ -26,12 +23,15 @@ public class ReservationController {
 
     // 예약글 등록 API
     @PostMapping("/register")
-    public ResponseEntity<ReservationPostResponse> register(
+    public ResponseEntity<List<ReservationPostResponse>> register(
             @RequestBody ReservationPostRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        ReservationPostResponse response = reservationService.createReservationPost(request, userDetails.getUser());
-        return ResponseEntity.ok(response);
+        // 사용자가 보낸 예약글 요청을 처리하여 여러 지역을 포함한 예약글 생성
+        List<ReservationPostResponse> responses = reservationService.createReservationPosts(request, userDetails.getUser());
+
+        // 예약글 등록 후 생성된 예약글 리스트를 응답으로 반환 (201 Created 상태 코드)
+        return ResponseEntity.status(201).body(responses);  // 응답 상태는 201 CREATED로 반환
     }
 
     // 전체 예약글 조회 API
@@ -71,9 +71,4 @@ public class ReservationController {
     public ResponseEntity<List<ReservationResponseDto>> getMyRequests(@RequestParam Long userId) {
         return ResponseEntity.ok(reservationService.getRequestsByUser(userId));
     }
-
-
-
-
 }
-

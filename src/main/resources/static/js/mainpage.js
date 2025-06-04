@@ -1,28 +1,37 @@
-// ✅ MainPage 전용 스크립트
-
-function selectRegion(regionName) {
-    alert(`선택된 해역: ${regionName}`);
+function navigatePage(url) {
+  window.location.href = url;
 }
 
-// ✅ 비디오 슬라이더
-document.addEventListener('DOMContentLoaded', () => {
-    const videos = document.querySelectorAll('.videoSlider .video');
-    let current = 0;
+document.addEventListener("DOMContentLoaded", function () {
+  // Lottie 애니메이션
+  lottie.loadAnimation({
+    container: document.getElementById('lottiePopularPosts'),
+    renderer: 'svg',
+    loop: true,
+    autoplay: true,
+    path: '/json/mascot.json'
+  });
 
-    function showVideo(index) {
-        videos.forEach((video, i) => {
-            video.classList.remove('active');
-            if (i === index) {
-                video.classList.add('active');
-            }
-        });
-    }
+  gsap.registerPlugin(ScrollTrigger);
 
-    if (videos.length > 0) {
-        showVideo(current);
-        setInterval(() => {
-            current = (current + 1) % videos.length;
-            showVideo(current);
-        }, 4000);
+  // 초기 상태를 명확하게 지정 (style 속성에 강제 주입)
+  gsap.set("#comImage", {
+    opacity: 0,
+    scale: 1.2,
+    filter: "blur(6px)"
+  });
+
+  // fromTo 애니메이션
+  gsap.to("#comImage", {
+    opacity: 1,
+    scale: 1,
+    filter: "blur(0px)",
+    duration: 1.5,
+    scrollTrigger: {
+      trigger: ".catchLogSection",
+      start: "top 80%",
+      end: "bottom top",
+      toggleActions: "play none none reverse", // scrub 제거
     }
+  });
 });

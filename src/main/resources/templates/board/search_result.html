@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>검색 결과</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" th:href="@{/css/header.css}" />
+  <link rel="stylesheet" th:href="@{/css/footer.css}" />
+  <link rel="stylesheet" th:href="@{/css/MainPage.css}" />
+  <script src="/js/common.js" defer></script>
+
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fff;
+    }
+
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .search-container {
+      flex: 1;
+      padding: 60px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .search-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0077b6;
+      margin-bottom: 50px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .result-section {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      flex-wrap: wrap;
+    }
+
+    .result-card {
+      background-color: #f8f9fa;
+      padding: 28px 32px;
+      border-radius: 16px;
+      width: 480px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: 0.3s;
+    }
+
+    .result-card:hover {
+      background-color: #eaf6ff;
+    }
+
+    .result-card h3 {
+      font-size: 22px;
+      font-weight: bold;
+      color: #023e8a;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .result-card li {
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .result-card a {
+      text-decoration: none;
+      color: #0077b6;
+      font-weight: 600;
+    }
+
+    .result-card a:hover {
+      text-decoration: underline;
+    }
+
+    .no-result {
+      color: #888;
+      font-style: italic;
+      font-size: 15px;
+    }
+
+    @media (max-width: 1000px) {
+      .result-section {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .result-card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- 헤더 삽입 -->
+  <div th:replace="~{fragments/header :: headerFragment}"></div>
+
+  <!-- 본문 영역 -->
+  <div class="search-container">
+    <div class="search-title">
+      🔍 <span th:text="'검색 결과: ' + ${keyword}">검색 결과</span>
+    </div>
+
+    <div class="result-section">
+
+      <!-- 게시판 결과 -->
+      <div class="result-card">
+        <h3>📄 게시판 글</h3>
+        <ul>
+          <li th:each="post : ${results}">
+            <a th:href="@{'/posts/' + ${post.id}}" th:text="${post.title}">게시글 제목</a>
+          </li>
+        </ul>
+        <div th:if="${#lists.isEmpty(results)}" class="no-result">
+          게시판 검색 결과가 없습니다.
+        </div>
+      </div>
+
+      <!-- 예약 결과 -->
+      <div class="result-card">
+        <h3>🚤 예약 결과</h3>
+        <ul>
+          <li th:each="boat : ${reservations}">
+            <a th:href="@{'/reservation/boat/' + ${boat.id}}">
+              <span th:text="${boat.companyName}">회사명</span> |
+              <span th:text="${boat.region}">지역</span> |
+              <span th:text="${boat.boatType}">선박 종류</span>
+            </a>
+          </li>
+        </ul>
+        <div th:if="${#lists.isEmpty(reservations)}" class="no-result">
+          선상 예약글 검색 결과가 없습니다.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 푸터 삽입 -->
+  <div th:replace="~{fragments/footer :: footerFragment}"></div>
+</div>
+</body>
+</html>
