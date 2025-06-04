@@ -2,18 +2,12 @@ package com.fishtripplanner.api.khoa;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fishtripplanner.dto.MarineInfoResponseDto;
-import com.fishtripplanner.dto.RecommendedFishingTime;
-import lombok.Builder;
-import lombok.Data;
+import com.fishtripplanner.dto.FishingIndexDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 
 import static com.fishtripplanner.api.khoa.AreaCodesUtil.findNearest;
@@ -28,8 +22,7 @@ public class LifeFishingIndexService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // 갯바위(rock) 및 선상(boat) 타입별로 AreaCodes enum에서 가장 가까운 코드 사용
-    public List<FishingIndex> fetchFishingIndex(double lat, double lon, String date, AreaCodes.AreaType type) {
+    public List<FishingIndexDto> fetchFishingIndex(double lat, double lon, String date, AreaCodes.AreaType type) {
         AreaCodes area = findNearest(lat, lon, type).orElseThrow(() -> new IllegalArgumentException("해당 타입의 지역 없음"));
         String areaCode = area.getCode();
 
@@ -53,56 +46,28 @@ public class LifeFishingIndexService {
         }
     }
 
-    private List<FishingIndex> parseResponse(String json) {
-        List<FishingIndex> list = new ArrayList<>();
+    private List<FishingIndexDto> parseResponse(String json) {
+        List<FishingIndexDto> result = new ArrayList<>();
         try {
             JsonNode root = objectMapper.readTree(json);
-            JsonNode tableList = root.path("tableList");
-            for (JsonNode node : tableList) {
-                FishingIndex index = FishingIndex.builder()
+            JsonNode list = root.path("selectFishing");
+            for (JsonNode node : list) {
+                result.add(FishingIndexDto.builder()
                         .dateStr(node.path("date").asText())
-                        .timeStr(node.path("time").asText())
-                        .fishName(node.path("fishType").asText())
+                        .timeStr(node.path("pred_type").asText())
+                        .fishName(node.path("fishName").asText())
                         .fishingIndex(node.path("fishingIndex").asText())
-                        .fishingScore(parseScore(node.path("fishingScore").asText()))
                         .waveHeight(node.path("waveHeight").asText())
+                        .currentSpeed(node.path("currentSpeed").asText())
                         .waterTemp(node.path("waterTemp").asText())
                         .airTemp(node.path("airTemp").asText())
-                        .build();
-                list.add(index);
+                        .tide(node.path("tideTime").asText())
+                        .fishingScore(0) // 필요시 파싱 추가
+                        .build());
             }
         } catch (Exception e) {
-            log.error("파싱 오류", e);
+            log.error("JSON 파싱 오류", e);
         }
-        return list;
-    }
-
-    private double parseScore(String score) {
-        try {
-            return Double.parseDouble(score);
-        } catch (Exception e) {
-            return 0.0;
-        }
-    }
-
-    // 필요 시: 추천 시간 추출 등은 별도 메서드로
-    public Optional<FishingIndex> recommendBestTime(List<FishingIndex> list, String fishType, String date) {
-        return list.stream()
-                .filter(f -> f.getFishName().equals(fishType))
-                .filter(f -> f.getDateStr().startsWith(date))
-                .max(Comparator.comparingDouble(FishingIndex::getFishingScore));
-    }
-
-    @Data
-    @Builder
-    public static class FishingIndex {
-        private String dateStr;
-        private String timeStr;
-        private String fishName;
-        private String fishingIndex;
-        private double fishingScore;
-        private String waveHeight;
-        private String waterTemp;
-        private String airTemp;
+        return result;
     }
 }

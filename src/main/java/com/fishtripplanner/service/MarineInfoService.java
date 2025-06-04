@@ -3,6 +3,7 @@ package com.fishtripplanner.service;
 import com.fishtripplanner.api.khoa.AreaCodes;
 import com.fishtripplanner.api.khoa.LifeFishingIndexService;
 import com.fishtripplanner.api.khoa.TripMarineInfoService;
+import com.fishtripplanner.dto.FishingIndexDto;
 import com.fishtripplanner.dto.MarineInfoResponseDto;
 import com.fishtripplanner.dto.RecommendedFishingTime;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,6 @@ public class MarineInfoService {
 
     private final LifeFishingIndexService lifeFishingIndexService;
     private final TripMarineInfoService tripMarineInfoService;
-    // 필요하다면 기타 서비스(EtcFishingService 등)도 추가
 
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
 
@@ -35,17 +35,17 @@ public class MarineInfoService {
 
         // 생활낚시지수 - 갯바위(ROCK)
         tasks.add(() -> {
-            List<LifeFishingIndexService.FishingIndex> rockList =
+            List<FishingIndexDto> rockDtoList =
                     lifeFishingIndexService.fetchFishingIndex(lat, lon, departureDate, AreaCodes.AreaType.ROCK);
-            response.setRock(rockList);
+            response.setRock(rockDtoList);
             return null;
         });
 
         // 생활낚시지수 - 선상(BOAT)
         tasks.add(() -> {
-            List<LifeFishingIndexService.FishingIndex> boatList =
+            List<FishingIndexDto> boatDtoList =
                     lifeFishingIndexService.fetchFishingIndex(lat, lon, departureDate, AreaCodes.AreaType.BOAT);
-            response.setBoat(boatList);
+            response.setBoat(boatDtoList);
             return null;
         });
 
@@ -57,8 +57,6 @@ public class MarineInfoService {
             response.setRecommendedTimes(timeList);
             return null;
         });
-
-        // 필요하다면 기타 생활낚시지수(ETC)도 여기에 추가
 
         try {
             executor.invokeAll(tasks);
