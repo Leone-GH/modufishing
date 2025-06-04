@@ -1,49 +1,41 @@
 package com.fishtripplanner.controller.api;
 
-import com.fishtripplanner.api.khoa.FishingIndex;
-import com.fishtripplanner.api.khoa.FishingIndexService;
-import com.fishtripplanner.api.khoa.TripMarineInfoService;
 import com.fishtripplanner.dto.MarineInfoResponseDto;
-import com.fishtripplanner.mapper.MarineInfoMapper;
+import com.fishtripplanner.service.MarineInfoService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Optional;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/marine-info")
 @RequiredArgsConstructor
+@RequestMapping("/api/marine-info")
+@Slf4j
 public class MarineInfoController {
 
-    private final TripMarineInfoService tripMarineInfoService;
-    private final FishingIndexService fishingIndexService;
+    private final MarineInfoService marineInfoService;
 
-    @GetMapping
-    public MarineInfoResponseDto getMarineInfo(
-            @RequestParam double lat,
-            @RequestParam double lon,
-            @RequestParam String area,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(required = false) String fishType,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime arrivalTime
-    ) {
-        var result = tripMarineInfoService.getMarineInfo(lat, lon, area, date);
+    @PostMapping
+    public MarineInfoResponseDto getMarineInfo(@RequestBody MarineInfoRequest request) {
+        log.info("🌊 해양 정보 요청: 위도={}, 경도={}, 출발일={}, 도착시각={}",
+                request.getDestinationLat(), request.getDestinationLng(), request.getDepartureDate(), request.getArrivalTime());
 
-        Optional<FishingIndex> recommended = Optional.empty();
-        if (fishType != null) {
-            if (arrivalTime != null) {
-                recommended = fishingIndexService.recommendBestTimeAfter(result.getFishingIndexList(), fishType, arrivalTime);
-            } else {
-                recommended = fishingIndexService.recommendBestTime(result.getFishingIndexList(), fishType);
-            }
-        }
+        return marineInfoService.fetchMarineInfo(
+                request.getDestinationLat(),
+                request.getDestinationLng(),
+                request.getDepartureDate(),
+                request.getArrivalTime()
+        );
+    }
 
-        return MarineInfoMapper.toResponseDto(result, recommended);
+    @Getter
+    @Setter
+    public static class MarineInfoRequest {
+        private double destinationLat;
+        private double destinationLng;
+        private String departureDate;   // yyyy-MM-dd
+        private String arrivalTime;     // HH:mm
     }
 }
+

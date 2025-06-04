@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="/css/party-create.css">
 
   <style>
-    .{
+    *{
       margin:0 auto;
     }
     #mapContextMenu {
@@ -76,11 +76,15 @@
 </form>
 <div id="map" style="width:60%;height:800px;padding-right:50px;padding-left:50px;"></div>
 <div id="mapContextMenu"></div></div>
-<div id="weatherSection" style="display:flex;justify-content:center;">
- 여기가 바뀌는거예요!
-</div>
+<!-- 해양 정보 출력 영역 -->
+<!-- marine info 출력 영역 -->
+<div id="marineInfoContainer" class="marine-info-container"></div>
+
 <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0b84a2179b2534016530526202844771&autoload=false&libraries=services"></script>
+<script th:src="@{/js/marine.js}"></script>
 <script th:src="@{/js/party-create.js}"></script>
+
+
 </body>
 </html>
 

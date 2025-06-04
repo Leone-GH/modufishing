@@ -29,7 +29,7 @@ public class CarInfoController {
 
     // 차량 모델 자동완성 검색
     @GetMapping("/search")
-    public ResponseEntity<List<String>> search(@RequestParam String keyword) throws Exception {
+    public ResponseEntity<List<String>> search(@RequestParam("keyword") String keyword) throws Exception {
         var rows = loadCsv();
         List<String> results = rows.stream()
                 .skip(1)
@@ -46,7 +46,7 @@ public class CarInfoController {
 
     // 차량 모델 정보 가져오기
     @GetMapping("/model")
-    public ResponseEntity<Map<String, Object>> getModel(@RequestParam String name) throws Exception {
+    public ResponseEntity<Map<String, Object>> getModel(@RequestParam("name") String name) throws Exception {
         var rows = loadCsv();
         for (String[] r : rows) {
             if (r.length < 5) continue;

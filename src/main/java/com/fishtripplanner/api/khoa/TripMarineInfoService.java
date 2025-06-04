@@ -1,67 +1,60 @@
-// TripMarineInfoService.java
 package com.fishtripplanner.api.khoa;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fishtripplanner.dto.MarineInfoResponseDto;
+import com.fishtripplanner.dto.RecommendedFishingTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalTime;
+import java.util.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TripMarineInfoService {
 
-    private final KhoaStationService khoaStationService;
-    private final FishingIndexService fishingIndexService;
-    private final TideForecastService tideForecastService;
+    private static final String BASE_URL = "https://www.khoa.go.kr/khoa/lifeforecast/getSeaTravelData.do";
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public MarineInfoResult getMarineInfo(double lat, double lon, String areaName, LocalDate targetDate, String fishType) {
-        MarineInfoResult result = new MarineInfoResult();
+    public MarineInfoResponseDto getMarineInfo(double lat, double lon, String date, String arrivalTime) {
+        AreaCodes nearest = AreaCodesUtil.findNearest(lat, lon, AreaCodes.AreaType.TRIP)
+                .orElseThrow(() -> new IllegalArgumentException("TRIP 관측소 없음"));
+        String areaCode = nearest.getCode();
+        String url = BASE_URL + "?fcstArea=" + areaCode + "&date=" + date;
+        log.info("TRIP API 호출: {}", url);
 
-        // 1. 낚시 지수 정보 조회
-        List<FishingIndex> fishingIndices = fishingIndexService.getFishingIndex(areaName, targetDate);
-        result.setFishingIndexList(fishingIndices);
+        MarineInfoResponseDto result = new MarineInfoResponseDto();
+        try {
+            String json = restTemplate.getForObject(url, String.class);
+            JsonNode root = objectMapper.readTree(json);
+            JsonNode tableList = root.path("tableList");
 
-        // 2. 추천 시간 계산
-        Optional<FishingIndex> recommended = Optional.empty();
-        if (fishType != null) {
-            recommended = fishingIndexService.recommendBestTimeAfter(fishingIndices, fishType, null);
+            List<RecommendedFishingTime> recommendedTimes = new ArrayList<>();
+            for (JsonNode node : tableList) {
+                RecommendedFishingTime time = RecommendedFishingTime.builder()
+                        .date(node.path("predDate").asText())
+                        .time(node.path("predType").asText())
+                        .fishType("해양예보")
+                        .waterTemp(node.path("avgWaterTemp").asText())
+                        .waveHeight(node.path("avgWaveHeight").asText())
+                        .airTemp(node.path("avgAirTemp").asText())
+                        .fishingScore(0) // 필요시 값 매핑
+                        .fishingIndex(node.path("totalScoreStr").asText())
+                        .build();
+                recommendedTimes.add(time);
+            }
+            result.setRecommendedTimes(recommendedTimes);
+
+        } catch (Exception e) {
+            log.error("TRIP 해양예보 파싱 오류", e);
         }
-
-        // 3. 해양 관측소 데이터
-        List<String> requiredTypes = List.of("수온", "풍속", "풍향", "기온");
-        Map<String, Optional<KhoaStationService.Station>> stationMap =
-                khoaStationService.findNearestStationsForDataTypes(lat, lon, requiredTypes);
-
-        stationMap.forEach((type, stationOpt) -> stationOpt.ifPresent(s -> result.addStation(type, s)));
-
-        // 4. 조석 예보 정보 (수온 관측소 기준)
-        Optional<KhoaStationService.Station> tideStationOpt = stationMap.getOrDefault("수온", Optional.empty());
-        tideStationOpt.ifPresent(station -> {
-            result.setTideForecastList(
-                    tideForecastService.getTideForecast(station.getObsPostId(), targetDate)
-            );
-        });
-
-        // 5. 추천 결과 포함
-        result.setRecommended(recommended);
 
         return result;
-    }
-
-    @lombok.Data
-    public static class MarineInfoResult {
-        private List<FishingIndex> fishingIndexList;
-        private Map<String, KhoaStationService.Station> stationByType = new java.util.HashMap<>();
-        private List<TideForecastService.TideForecast> tideForecastList = new java.util.ArrayList<>();
-        private Optional<FishingIndex> recommended = Optional.empty();
-
-        public void addStation(String type, KhoaStationService.Station station) {
-            stationByType.put(type, station);
-        }
     }
 }
