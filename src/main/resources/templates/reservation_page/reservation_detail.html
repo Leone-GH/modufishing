@@ -40,7 +40,7 @@
 
     <!-- ✅ 예약 기본 정보 -->
     <div class="basic-info">
-      <p><strong>지역:</strong> <span th:text="${#strings.arrayJoin(reservation.regionNames, ', ')}">지역명</span></p>
+      <p><strong>지역:</strong> <span th:text="${reservation.formattedRegionString}">지역명</span></p>
       <p><strong>회사명:</strong> <span th:text="${reservation.companyName}">회사명</span></p>
       <p><strong>예약 유형:</strong> <span th:text="${reservation.typeKorean}">선상</span></p>
       <p><strong>가격:</strong> <span th:text="${#numbers.formatInteger(reservation.price, 3, 'COMMA')} + '원'">가격</span></p>

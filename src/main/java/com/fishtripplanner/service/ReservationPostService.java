@@ -223,28 +223,32 @@ public class ReservationPostService {
         ReservationPost post = reservationPostRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약글이 존재하지 않습니다."));
 
-        // 여러 지역을 처리하기 위해, 지역들을 반환합니다.
-        List<String> regionNames = post.getRegions().stream()
-                .map(region -> region.getName())  // 여러 지역 이름을 리스트로 반환
+        // ✅ RegionEntity → RegionDto 변환
+        List<ReservationDetailResponseDto.RegionDto> regionDtos = post.getRegions().stream()
+                .map(region -> ReservationDetailResponseDto.RegionDto.builder()
+                        .name(region.getName())
+                        .parentName(region.getParent() != null ? region.getParent().getName() : null)
+                        .build())
                 .collect(Collectors.toList());
 
-        // 예약 가능한 날짜 처리
-        List<ReservationDetailResponseDto.AvailableDateDto> dateDtos =
-                post.getAvailableDates().stream().map(ad -> {
-                    int reserved = reservationOrderRepository.countByReservationPostAndAvailableDate(post, ad.getAvailableDate());
-                    return ReservationDetailResponseDto.AvailableDateDto.builder()
-                            .date(ad.getAvailableDate().toString())
-                            .time(ad.getTime())
-                            .capacity(ad.getCapacity())
-                            .remaining(ad.getCapacity() - reserved)
-                            .build();
-                }).toList();
+        // ✅ 예약 가능한 날짜 처리
+        List<ReservationDetailResponseDto.AvailableDateDto> dateDtos = post.getAvailableDates().stream().map(ad -> {
+            int reserved = reservationOrderRepository.countByReservationPostAndAvailableDate(post, ad.getAvailableDate());
+            return ReservationDetailResponseDto.AvailableDateDto.builder()
+                    .date(ad.getAvailableDate().toString())
+                    .rawDate(ad.getAvailableDate().toString())
+                    .time(ad.getTime())
+                    .capacity(ad.getCapacity())
+                    .remaining(ad.getCapacity() - reserved)
+                    .build();
+        }).toList();
 
+        // ✅ 최종 DTO 반환
         return ReservationDetailResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .imageUrl(post.getImageUrl())
-                .regionNames(regionNames)  // 여러 지역 이름을 반환
+                .regions(regionDtos) // ✅ 여기 수정: 지역 리스트 설정
                 .companyName(post.getCompanyName())
                 .type(post.getType().name())
                 .typeLower(post.getType().name().toLowerCase())
@@ -255,4 +259,5 @@ public class ReservationPostService {
                 .availableDates(dateDtos)
                 .build();
     }
+
 }

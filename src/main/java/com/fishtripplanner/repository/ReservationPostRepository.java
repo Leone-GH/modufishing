@@ -124,32 +124,30 @@ public interface ReservationPostRepository extends JpaRepository<ReservationPost
     );
 
     @Query("""
-        SELECT DISTINCT r
-        FROM ReservationPost r
-        JOIN r.regions region
-        LEFT JOIN r.availableDates d
-        LEFT JOIN r.fishTypes f
-        WHERE r.type = :type
-          AND (:regionIds IS NULL OR region.id IN :regionIds)
-          AND (:dates IS NULL OR d.availableDate IN :dates)
-          AND (:fishTypes IS NULL OR f.name IN :fishTypes)
-          AND (
-              :keyword IS NULL
-               OR LOWER(r.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
-               OR LOWER(r.companyName) LIKE LOWER(CONCAT('%', :keyword, '%'))
-               OR LOWER(r.content) LIKE LOWER(CONCAT('%', :keyword, '%'))
-               OR EXISTS (
-                   SELECT 1
-                   FROM r.fishTypes f2
-                   WHERE LOWER(f2.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
-               )
-               OR EXISTS (
-                   SELECT 1
-                   FROM r.regions reg
-                   WHERE LOWER(reg.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
-               )
-          )
-    """)
+    SELECT DISTINCT r
+    FROM ReservationPost r
+    JOIN r.regions region
+    LEFT JOIN r.availableDates d
+    LEFT JOIN r.fishTypes f
+    WHERE (:type IS NULL OR r.type = :type)
+      AND (:regionIds IS NULL OR region.id IN :regionIds)
+      AND (:dates IS NULL OR d.availableDate IN :dates)
+      AND (:fishTypes IS NULL OR f.name IN :fishTypes)
+      AND (
+          :keyword IS NULL
+           OR LOWER(r.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(r.companyName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(r.content) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR EXISTS (
+               SELECT 1 FROM r.fishTypes f2
+               WHERE LOWER(f2.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           )
+           OR EXISTS (
+               SELECT 1 FROM r.regions reg
+               WHERE LOWER(reg.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           )
+      )
+""")
     Page<ReservationPost> findByFilters(
             @Param("type") ReservationType type,
             @Param("regionIds") List<Long> regionIds,
@@ -158,6 +156,7 @@ public interface ReservationPostRepository extends JpaRepository<ReservationPost
             @Param("keyword") String keyword,
             Pageable pageable
     );
+
 
     @Query("SELECT DISTINCT f.name FROM FishTypeEntity f")
     List<String> findAllFishTypeNames();
@@ -171,4 +170,19 @@ public interface ReservationPostRepository extends JpaRepository<ReservationPost
         WHERE r.id = :id
     """)
     Optional<ReservationPost> findByIdWithAvailableDatesOnly(@Param("id") Long id);
+
+    @Query("""
+        SELECT DISTINCT r
+        FROM ReservationPost r
+        LEFT JOIN r.fishTypes f
+        LEFT JOIN r.regions reg
+        WHERE LOWER(r.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(r.companyName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(r.content) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(f.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(reg.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    """)
+    List<ReservationPost> findByKeyword(@Param("keyword") String keyword);
 }
+
+
