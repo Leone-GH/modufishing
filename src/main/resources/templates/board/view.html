@@ -6,7 +6,6 @@
   <link rel="stylesheet" th:href="@{/css/header.css}" />
   <script th:src="@{/js/common.js}" defer></script>
 
-  <!-- CSRF 메타 태그 (조건부 렌더링) -->
   <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}" />
   <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}" />
 
@@ -52,7 +51,7 @@
   </style>
 </head>
 <body>
-<div th:replace="~{fragments/header :: headerFragment}"></div>
+<div th:replace="fragments/header :: headerFragment"></div>
 
 <div class="view-container">
   <h1 th:text="${post.title}">제목</h1>

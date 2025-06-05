@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Header</title>
+    <script>
+        function navigatePage(path) {
+            window.location.href = path;
+        }
+    </script>
 </head>
 <body>
 <div th:fragment="headerFragment">
@@ -11,7 +16,6 @@
             <a href="/" class="logoText">🎣 FishTrip</a>
         </div>
 
-        <!-- ✅ 검색창 구조 수정 -->
         <div class="searchBoxWrapper">
             <form th:action="@{/search}" method="get" class="searchForm">
                 <input type="text" name="keyword" placeholder="검색어를 입력하세요..." class="searchInput" />
