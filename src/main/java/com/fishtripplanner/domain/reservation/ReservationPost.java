@@ -8,7 +8,11 @@ import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -70,4 +74,20 @@ public class ReservationPost {
     @OneToMany(mappedBy = "reservationPost")
     @BatchSize(size = 20)
     private List<ReservationPostAvailableDate> availableDates;  // 예약 글에 해당하는 예약 가능한 날짜들
+
+    public String getFormattedRegionString() {
+        if (regions == null || regions.isEmpty()) return "";
+
+        // 부모 -> 자식 리스트 매핑
+        Map<String, List<String>> grouped = new LinkedHashMap<>();
+        for (RegionEntity region : regions) {
+            String parent = region.getParent() != null ? region.getParent().getName() : "기타";
+            grouped.computeIfAbsent(parent, k -> new ArrayList<>()).add(region.getName());
+        }
+
+        return grouped.entrySet().stream()
+                .map(e -> "(" + e.getKey() + ")" + String.join(" ", e.getValue()))
+                .collect(Collectors.joining(", "));
+    }
+
 }

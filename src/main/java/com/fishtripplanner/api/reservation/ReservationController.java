@@ -1,15 +1,18 @@
 package com.fishtripplanner.api.reservation;
 
+import com.fishtripplanner.domain.reservation.ReservationPost;
 import com.fishtripplanner.dto.reservation.CreateReservationRequestDto;
 import com.fishtripplanner.dto.reservation.ReservationResponseDto;
 import com.fishtripplanner.domain.reservation.ReservationStatus;
 import com.fishtripplanner.dto.ReservationPostRequest;
 import com.fishtripplanner.dto.ReservationPostResponse;
+import com.fishtripplanner.repository.ReservationPostRepository;
 import com.fishtripplanner.security.CustomUserDetails;
 import com.fishtripplanner.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.List;
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final ReservationPostRepository reservationPostRepository; // ← 이거 추가
 
     // 예약글 등록 API
     @PostMapping("/register")
@@ -71,4 +75,14 @@ public class ReservationController {
     public ResponseEntity<List<ReservationResponseDto>> getMyRequests(@RequestParam Long userId) {
         return ResponseEntity.ok(reservationService.getRequestsByUser(userId));
     }
+
+    @GetMapping("/reservation/{id}")
+    public String reservationDetail(@PathVariable Long id, Model model) {
+        ReservationPost reservation = reservationPostRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("예약글을 찾을 수 없습니다. id=" + id));
+
+        model.addAttribute("reservation", reservation);
+        return "reservation/detail"; // 실제 템플릿 파일 경로에 맞춰서 수정
+    }
+
 }

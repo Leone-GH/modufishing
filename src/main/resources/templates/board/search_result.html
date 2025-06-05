@@ -141,18 +141,23 @@
 
       <!-- 예약 결과 -->
       <div class="result-card">
-        <h3>🚤 예약 결과</h3>
+        <h3>🚤 예약하기</h3>
         <ul>
-          <li th:each="boat : ${reservations}">
-            <a th:href="@{'/reservation/boat/' + ${boat.id}}">
-              <span th:text="${boat.companyName}">회사명</span> |
-              <span th:text="${boat.region}">지역</span> |
-              <span th:text="${boat.boatType}">선박 종류</span>
+          <li th:each="post : ${reservations}">
+            <a th:href="@{'/reservation/detail/' + ${post.id}}">
+              <!-- ✅ 첫 줄: 예약 타입 -->
+              <span th:text="${post.typeKorean}">예약 타입</span>
+              <br/>
+
+              <!-- ✅ 둘째 줄: 업체명 | 지역 -->
+              <span th:text="${post.companyName}">업체명</span>
+              <span> | </span>
+              <span th:text="${post.region}">지역</span>
             </a>
           </li>
         </ul>
         <div th:if="${#lists.isEmpty(reservations)}" class="no-result">
-          선상 예약글 검색 결과가 없습니다.
+          예약글 검색 결과가 없습니다.
         </div>
       </div>
 
