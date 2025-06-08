@@ -36,7 +36,10 @@ public class ReservationOrderService {
                 .map(d -> d.getCapacity())
                 .orElseThrow(() -> new IllegalArgumentException("해당 날짜는 예약 불가"));
 
-        int reservedCount = reservationOrderRepository.countByReservationPostAndAvailableDate(post, date);
+        // 예약된 총 인원 수를 합산
+        Integer reservedCount = reservationOrderRepository.sumCountByPostIdAndDate(post.getId(), date);
+        if (reservedCount == null) reservedCount = 0;  // 예약이 없다면 0으로 처리
+
         int remaining = capacity - reservedCount;
 
         if (remaining < dto.getCount()) {

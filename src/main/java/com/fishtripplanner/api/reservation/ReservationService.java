@@ -128,20 +128,24 @@ public class ReservationService {
         ReservationPost post = reservationPostRepository.findByIdWithAvailableDatesOnly(id)
                 .orElseThrow(() -> new RuntimeException("예약글을 찾을 수 없습니다."));
 
-        // ✅ availableDates 계산만 남기고 regionNames는 DTO에서 처리함
+        // availableDates 계산만 남기고 regionNames는 DTO에서 처리함
         List<ReservationDetailResponseDto.AvailableDateDto> availableDates = post.getAvailableDates().stream()
                 .map(date -> {
-                    int reserved = reservationOrderRepository.countByReservationPostAndAvailableDate(post, date.getAvailableDate());
+                    // countByReservationPostAndAvailableDate를 sumCountByPostIdAndDate로 변경
+                    Integer reserved = reservationOrderRepository.sumCountByPostIdAndDate(post.getId(), date.getAvailableDate());
+                    if (reserved == null) reserved = 0; // 예약된 인원이 없으면 0으로 처리
+
                     return ReservationDetailResponseDto.AvailableDateDto.builder()
                             .date(date.getAvailableDate().toString())
                             .time(date.getTime())
                             .capacity(date.getCapacity())
-                            .remaining(date.getCapacity() - reserved)
+                            .remaining(date.getCapacity() - reserved)  // 남은 좌석 수 계산
                             .build();
                 })
                 .collect(Collectors.toList());
 
         return ReservationDetailResponseDto.from(post, availableDates);
     }
+
 
 }

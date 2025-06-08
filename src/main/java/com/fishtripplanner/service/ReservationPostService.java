@@ -223,7 +223,7 @@ public class ReservationPostService {
         ReservationPost post = reservationPostRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약글이 존재하지 않습니다."));
 
-        // ✅ RegionEntity → RegionDto 변환
+        // RegionEntity → RegionDto 변환
         List<ReservationDetailResponseDto.RegionDto> regionDtos = post.getRegions().stream()
                 .map(region -> ReservationDetailResponseDto.RegionDto.builder()
                         .name(region.getName())
@@ -231,24 +231,27 @@ public class ReservationPostService {
                         .build())
                 .collect(Collectors.toList());
 
-        // ✅ 예약 가능한 날짜 처리
+        // 예약 가능한 날짜 처리
         List<ReservationDetailResponseDto.AvailableDateDto> dateDtos = post.getAvailableDates().stream().map(ad -> {
-            int reserved = reservationOrderRepository.countByReservationPostAndAvailableDate(post, ad.getAvailableDate());
+            // sumCountByPostIdAndDate로 예약된 인원 수를 가져옴
+            Integer reserved = reservationOrderRepository.sumCountByPostIdAndDate(post.getId(), ad.getAvailableDate());
+            if (reserved == null) reserved = 0;  // 예약된 인원이 없으면 0으로 처리
+
             return ReservationDetailResponseDto.AvailableDateDto.builder()
                     .date(ad.getAvailableDate().toString())
                     .rawDate(ad.getAvailableDate().toString())
                     .time(ad.getTime())
                     .capacity(ad.getCapacity())
-                    .remaining(ad.getCapacity() - reserved)
+                    .remaining(ad.getCapacity() - reserved)  // 남은 좌석 수 계산
                     .build();
         }).toList();
 
-        // ✅ 최종 DTO 반환
+        // 최종 DTO 반환
         return ReservationDetailResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .imageUrl(post.getImageUrl())
-                .regions(regionDtos) // ✅ 여기 수정: 지역 리스트 설정
+                .regions(regionDtos)
                 .companyName(post.getCompanyName())
                 .type(post.getType().name())
                 .typeLower(post.getType().name().toLowerCase())
@@ -259,5 +262,6 @@ public class ReservationPostService {
                 .availableDates(dateDtos)
                 .build();
     }
+
 
 }
