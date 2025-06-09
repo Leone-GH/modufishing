@@ -15,21 +15,15 @@ public class MainPageController {
 
     private final PostRepository postRepository;
 
-    @GetMapping("/")
-    public String rootRedirectToMain(Model model) {
-        List<Post> posts = postRepository.findTop10ByOrderByCreatedAtDesc();
-        List<Post> popularPosts = postRepository.findTop12ByOrderByViewCountDesc(); // ★ 12개로 수정
-        model.addAttribute("posts", posts);
-        model.addAttribute("popularPosts", popularPosts);
-        return "MainPage";
-    }
-
-    @GetMapping("/MainPage")
+    // 루트 경로와 /MainPage 둘 다 같은 페이지로 연결
+    @GetMapping({"/", "/MainPage"})
     public String showMainPage(Model model) {
         List<Post> posts = postRepository.findTop10ByOrderByCreatedAtDesc();
-        List<Post> popularPosts = postRepository.findTop12ByOrderByViewCountDesc(); // ★ 12개로 수정
+        List<Post> popularPosts = postRepository.findTop12ByOrderByViewCountDesc();
+
         model.addAttribute("posts", posts);
         model.addAttribute("popularPosts", popularPosts);
-        return "MainPage";
+
+        return "MainPage"; // templates/MainPage.html 또는 templates/user/MainPage.html
     }
 }
