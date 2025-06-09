@@ -21,15 +21,15 @@ public class ReservationCardDto {
     private String content;
     private String companyName;
     private String imageUrl;
-    private String region;             // ✅ 여러 지역 문자열로 표시 (ex: (서울)강남구 송파구, (경기)수원시)
+    private String region;
     private List<String> fishTypes;
-    private String typeKorean;         // ✅ 한글 예약 타입명 (예: 선상, 갯바위, 민박 등)
+    private String typeKorean;
 
-    /**
-     * ReservationPost → ReservationCardDto 변환 로직
-     */
+    // ✅ 출력용 필드 (첫 줄만 남김)
+    private String titleLine;  // ex: (선상낚시) 낚시 갈 사람 모집
+
     public static ReservationCardDto from(ReservationPost post) {
-        // ✅ 지역 문자열 처리
+        // 지역 문자열 처리
         String regionText = "미지정";
         List<RegionEntity> regions = post.getRegions();
         if (regions != null && !regions.isEmpty()) {
@@ -45,10 +45,9 @@ public class ReservationCardDto {
             regionText = String.join(", ", formatted);
         }
 
-        // ✅ 이미지 경로 보정
+        // 이미지 경로 보정
         String imageUrl = post.getImageUrl();
         if (imageUrl == null || imageUrl.isBlank()) {
-            // 타입별 기본 이미지
             switch (post.getType()) {
                 case BOAT -> imageUrl = "/images/boat.jpg";
                 case FLOAT -> imageUrl = "/images/float.png";
@@ -61,11 +60,13 @@ public class ReservationCardDto {
             imageUrl = "/uploads/reservation_images/" + imageUrl;
         }
 
-        // ✅ 한글 예약 타입명 가져오기
+        // 예약 타입명
         ReservationType type = post.getType();
         String typeKorean = type != null ? type.getKorean() : "기타";
 
-        // ✅ DTO 생성 및 반환
+        // 제목 줄만 생성
+        String titleLine = "(" + typeKorean + ") " + post.getTitle();
+
         return new ReservationCardDto(
                 post.getId(),
                 post.getTitle(),
@@ -76,8 +77,8 @@ public class ReservationCardDto {
                 post.getFishTypes().stream()
                         .map(FishTypeEntity::getName)
                         .collect(Collectors.toList()),
-                typeKorean
+                typeKorean,
+                titleLine
         );
     }
-
 }
