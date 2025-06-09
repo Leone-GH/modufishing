@@ -145,14 +145,9 @@
         <ul>
           <li th:each="post : ${reservations}">
             <a th:href="@{'/reservation/detail/' + ${post.id}}">
-              <!-- ✅ 첫 줄: 예약 타입 -->
-              <span th:text="${post.typeKorean}">예약 타입</span>
+              <!-- ✅ 첫 줄: (선상낚시) 글제목 -->
+              <span th:text="${post.titleLine}">예약 제목</span>
               <br/>
-
-              <!-- ✅ 둘째 줄: 업체명 | 지역 -->
-              <span th:text="${post.companyName}">업체명</span>
-              <span> | </span>
-              <span th:text="${post.region}">지역</span>
             </a>
           </li>
         </ul>
@@ -160,6 +155,7 @@
           예약글 검색 결과가 없습니다.
         </div>
       </div>
+
 
     </div>
   </div>
