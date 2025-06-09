@@ -1,0 +1,74 @@
+.payment-page-container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.payment-summary {
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 20px 0;
+  margin-bottom: 30px;
+}
+
+.payment-summary p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #444;
+}
+
+.payment-summary strong {
+  display: inline-block;
+  width: 110px;
+  color: #222;
+}
+
+.confirm-button {
+  width: 100%;
+  background-color: #0078ff;
+  color: white;
+  border: none;
+  padding: 15px;
+  font-size: 17px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.confirm-button:hover {
+  background-color: #005fc4;
+}
+
+.confirm-button:active {
+  background-color: #004ba0;
+}
+
+@media (max-width: 600px) {
+  .payment-page-container {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .payment-summary strong {
+    width: auto;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .payment-summary p {
+    font-size: 14px;
+  }
+}

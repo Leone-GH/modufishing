@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>결제 진행</title>
+
+  <th:block layout:fragment="add-css">
+    <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_payment.css}">
+  </th:block>
+</head>
+<body>
+<main layout:fragment="content" class="payment-page-container">
+  <h1>결제 확인</h1>
+
+  <div class="payment-summary">
+    <p><strong>예약 제목:</strong> <span th:text="${post.title}"></span></p>
+    <p><strong>예약 일자:</strong> <span th:text="${date}"></span></p>
+    <p><strong>인원 수:</strong> <span th:text="${count}"></span>명</p>
+    <p><strong>1인 가격:</strong> <span th:text="${#numbers.formatInteger(post.price, 3, 'COMMA')} + '원'"></span></p>
+    <p><strong>총 결제 금액:</strong>
+      <span th:text="${#numbers.formatInteger(post.price * count, 3, 'COMMA')} + '원'"></span>
+    </p>
+  </div>
+
+  <form action="/payment/confirm" method="post">
+    <input type="hidden" name="reservationPostId" th:value="${post.id}"/>
+    <input type="hidden" name="userId" th:value="${userId}"/>
+    <input type="hidden" name="availableDate" th:value="${date}"/>
+    <input type="hidden" name="count" th:value="${count}"/>
+    <input type="hidden" name="paid" value="true"/>
+
+    <button type="submit" class="confirm-button">결제하기</button>
+  </form>
+</main>
+</body>
+</html>

@@ -1,13 +1,15 @@
 package com.fishtripplanner.dto.reservation;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 // 생성 요청 DTO
 @Getter
 @Setter
+@Builder // ✅ 추가
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReservationOrderRequestDto {
     private Long reservationPostId;
     private Long userId;

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>예약 완료</title>
+
+  <th:block layout:fragment="add-css">
+    <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_complete.css}">
+  </th:block>
+
+</head>
+<body>
+<main layout:fragment="content" class="reservation-complete-container">
+  <h1>예약이 완료되었습니다!</h1>
+  <p>결제가 성공적으로 처리되었으며, 예약이 확정되었습니다.</p>
+  <a href="/" class="back-home-link">메인으로 돌아가기</a>
+</main>
+</body>
+</html>
