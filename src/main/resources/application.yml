@@ -60,7 +60,7 @@ spring:
             user-name-attribute: response
 
 server:
-  port: ${PORT:8080}      # ✅ Render가 지정한 포트에 맞게 수정
+  port: ${PORT:8090}      # ✅ Render가 지정한 포트에 맞게 수정
   address: 0.0.0.0        # ✅ 외부에서 접근 가능하도록 설정
 
   output:
