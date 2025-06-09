@@ -13,6 +13,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
+  thymeleaf:
+    cache: false             # ✅ 템플릿 수정 즉시 반영되도록 캐시 비활성화
+
   servlet:
     multipart:
       max-file-size: 20MB
@@ -63,9 +66,14 @@ spring:
             user-name-attribute: response
 
 server:
-  port: ${PORT:8080}       # Render에서 환경변수로 지정됨
-  address: 0.0.0.0         # 외부에서 접근 가능하게 설정
+  port: ${PORT:8080}         # ✅ Render의 동적 포트 대응
+  address: 0.0.0.0           # ✅ 외부 접근 허용
 
   output:
     ansi:
-      enabled: always
+      enabled: always        # ✅ 콘솔 출력 ANSI 색상 사용
+
+logging:
+  level:
+    org.hibernate.SQL: debug           # ✅ 쿼리 출력
+    org.hibernate.type: trace          # ✅ 바인딩된 파라미터까지 출력
