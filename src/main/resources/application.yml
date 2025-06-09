@@ -14,7 +14,7 @@ spring:
     show-sql: true
 
   thymeleaf:
-    cache: false             # ✅ 템플릿 수정 즉시 반영되도록 캐시 비활성화
+    cache: false
 
   servlet:
     multipart:
@@ -66,14 +66,14 @@ spring:
             user-name-attribute: response
 
 server:
-  port: ${PORT:8080}         # ✅ Render의 동적 포트 대응
-  address: 0.0.0.0           # ✅ 외부 접근 허용
+  port: ${PORT:8080}
+  address: 0.0.0.0
 
   output:
     ansi:
-      enabled: always        # ✅ 콘솔 출력 ANSI 색상 사용
+      enabled: always
 
 logging:
   level:
-    org.hibernate.SQL: debug           # ✅ 쿼리 출력
-    org.hibernate.type: trace          # ✅ 바인딩된 파라미터까지 출력
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
