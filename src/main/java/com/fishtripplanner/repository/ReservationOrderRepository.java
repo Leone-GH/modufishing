@@ -9,7 +9,11 @@ import java.time.LocalDate;
 
 public interface ReservationOrderRepository extends JpaRepository<ReservationOrderEntity, Long> {
 
-    // 예약된 인원 총합을 구하는 쿼리
-    @Query("SELECT SUM(o.count) FROM ReservationOrderEntity o WHERE o.reservationPost.id = :postId AND o.availableDate = :availableDate")
-    Integer sumCountByPostIdAndDate(@Param("postId") Long postId, @Param("availableDate") LocalDate availableDate);
+    // 예약된 인원 총합을 구하는 쿼리 - paid=true면 남은자리가 줄어듦
+    @Query("SELECT SUM(o.count) FROM ReservationOrderEntity o " +
+            "WHERE o.reservationPost.id = :postId " +
+            "AND o.availableDate = :availableDate " +
+            "AND o.paid = true")
+    Integer sumPaidCountByPostIdAndDate(@Param("postId") Long postId,
+                                        @Param("availableDate") LocalDate availableDate);
 }

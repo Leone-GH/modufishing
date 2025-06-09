@@ -234,7 +234,9 @@ public class ReservationPostService {
         // 예약 가능한 날짜 처리
         List<ReservationDetailResponseDto.AvailableDateDto> dateDtos = post.getAvailableDates().stream().map(ad -> {
             // sumCountByPostIdAndDate로 예약된 인원 수를 가져옴
-            Integer reserved = reservationOrderRepository.sumCountByPostIdAndDate(post.getId(), ad.getAvailableDate());
+            Integer reserved = reservationOrderRepository.sumPaidCountByPostIdAndDate(
+                    post.getId(), ad.getAvailableDate()
+            );
             if (reserved == null) reserved = 0;  // 예약된 인원이 없으면 0으로 처리
 
             return ReservationDetailResponseDto.AvailableDateDto.builder()
