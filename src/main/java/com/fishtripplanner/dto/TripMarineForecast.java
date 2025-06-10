@@ -1,44 +1,58 @@
 package com.fishtripplanner.dto;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 
 @Getter
-@Setter
+@ToString
 public class TripMarineForecast {
-    private String fcstArea;
-    private String predDate;
-    private String predType;
-    private String strWeather;
-    private String avgWindSpeed;
-    private String avgWaveHeight;
-    private String avgWaterTemp;
-    private String avgAirTemp;
-    private String totalScoreStr;
+    private final String date;
+    private final String time;
+    private final String fishType;
+    private final String waterTemp;
+    private final String waveHeight;
+    private final String airTemp;
+    private final String windSpeed;
+    private final String weather;
+    private final String fishingIndex;
+    private final String area;
+    private final String location;
+    private final double stLat;
+    private final double stLon;
+    private final String fishingScore;
 
-    // 기존에 생성자가 아래처럼 되어 있으면
-    // TripMarineForecast(String, String, ...)
-
-    // 반드시 public을 명시해야 함
+    @Builder
     public TripMarineForecast(
-            String fcstArea,
-            String predDate,
-            String predType,
-            String strWeather,
-            String avgWindSpeed,
-            String avgWaveHeight,
-            String avgWaterTemp,
-            String avgAirTemp,
-            String totalScoreStr
+            String date,
+            String time,
+            String fishType,
+            String waterTemp,
+            String waveHeight,
+            String airTemp,
+            String windSpeed,
+            String weather,
+            String fishingIndex,
+            String area,
+            String location,
+            double stLat,
+            double stLon,
+            String fishingScore
     ) {
-        this.fcstArea = fcstArea;
-        this.predDate = predDate;
-        this.predType = predType;
-        this.strWeather = strWeather;
-        this.avgWindSpeed = avgWindSpeed;
-        this.avgWaveHeight = avgWaveHeight;
-        this.avgWaterTemp = avgWaterTemp;
-        this.avgAirTemp = avgAirTemp;
-        this.totalScoreStr = totalScoreStr;
+        this.date = date;
+        this.time = time;
+        this.fishType = fishType;
+        this.waterTemp = waterTemp;
+        this.waveHeight = waveHeight;
+        this.airTemp = airTemp;
+        this.windSpeed = windSpeed;
+        this.weather = weather;
+        this.fishingIndex = fishingIndex;
+        this.area = area;
+        this.location = location;
+        this.stLat = stLat;
+        this.stLon = stLon;
+        this.fishingScore = fishingScore;
     }
 }
+

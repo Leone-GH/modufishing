@@ -39,8 +39,8 @@ public class BoatFishingIndexService {
             for (JsonNode node : list) {
                 result.add(FishingIndexDto.builder()
                         .dateStr(node.path("date").asText())
-                        .timeStr(node.path("time").asText())
-                        .fishName(node.path("fishType").asText())
+                        .timeStr(node.path("pred_type").asText())
+                        .fishName(node.path("fishName").asText())
                         .fishingIndex(node.path("fishingIndex").asText())
                         .fishingScore(parseDouble(node.path("fishingScore").asText()))
                         .waveHeight(node.path("waveHeight").asText())

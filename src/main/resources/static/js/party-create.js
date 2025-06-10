@@ -101,19 +101,32 @@ window.onload = function () {
             document.getElementById('tollText').textContent = `예상 톨게이트 비용: 약 ${toll.toLocaleString()}원`;
             document.getElementById('routeInfo').style.display = 'block';
 
-            // 해양 정보 호출
-            const departureInput = document.getElementById('departure-date');
-            if (departureInput && departureInput.value && destinationLat && destinationLng) {
-              let departureDate = "";
-              let departureTime = "";
-              if (departureInput.value.includes("T")) {
-                [departureDate, departureTime] = departureInput.value.split('T');
-              } else {
-                departureDate = departureInput.value;
-                departureTime = "00:00";
-              }
-              fetchMarineInfo(destinationLat, destinationLng, departureDate, departureTime);
-            }
+             // triptype 값 얻기
+                const triptype = document.getElementById("triptype").value;
+
+           const departureInput = document.getElementById('departure-date');
+           if (departureInput && departureInput.value && destinationLat && destinationLng) {
+             let departureDate = "", departureTime = "";
+             if (departureInput.value.includes("T")) {
+               [departureDate, departureTime] = departureInput.value.split('T');
+             } else {
+               departureDate = departureInput.value;
+               departureTime = "00:00";
+             }
+             // 도착일/도착시각 계산
+             const durationMinutes = Math.round(data.duration / 60);
+             const depDateObj = new Date(`${departureDate}T${departureTime}:00`);
+             depDateObj.setMinutes(depDateObj.getMinutes() + durationMinutes);
+             const arrivalDate = depDateObj.toISOString().slice(0, 10);
+             const arrivalTime = depDateObj.toTimeString().slice(0, 5);
+
+             // triptype 값 얻기
+             const triptype = document.getElementById("triptype").value;
+
+             // 해양 정보 호출
+             fetchMarineInfo(destinationLat, destinationLng, arrivalDate, arrivalTime, triptype);
+           }
+
 
             // 연료비 계산
             if (selectedVehicle) {
@@ -200,6 +213,8 @@ window.onload = function () {
       };
     });
 
+
+
     document.getElementById('partyForm').addEventListener('submit', () => {
       const container = document.getElementById('waypointInputs');
       container.innerHTML = '';
@@ -229,26 +244,26 @@ window.onload = function () {
 }
 
 
-// 해양정보 호출 함수 (중복 정의 금지)
-function fetchMarineInfo(destinationLat, destinationLng, departureDate, arrivalTime) {
+function fetchMarineInfo(destinationLat, destinationLng, arrivalDate, arrivalTime, triptype) {
   if (typeof destinationLat !== "number" || typeof destinationLng !== "number") {
     console.warn("marineInfo 좌표값이 잘못됨:", destinationLat, destinationLng);
     return;
   }
-  fetch(`/api/marine?lat=${destinationLat}&lon=${destinationLng}&departureDate=${encodeURIComponent(departureDate)}&arrivalTime=${encodeURIComponent(arrivalTime)}`)
+  fetch(`/api/marine?lat=${destinationLat}&lon=${destinationLng}&departureDate=${encodeURIComponent(arrivalDate)}&arrivalTime=${encodeURIComponent(arrivalTime)}`)
     .then(res => {
       if (!res.ok) throw new Error("서버 오류: " + res.statusText);
       return res.json();
     })
     .then(data => {
       console.log("🌊 해양정보 응답:", data);
-      renderFishingInfo(data); // 이 줄 추가!
+      renderFishingInfo(data, arrivalDate, arrivalTime, triptype); // 4개 인자 필수!
     })
     .catch(e => {
       console.error("marine.js: 해양 정보 호출 실패:", e);
       alert("해양 정보를 불러올 수 없습니다.");
     });
 }
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // 연료 단가 비동기로 받아서 유류비 계산에 반영
 async function calculateFuelCost(routeData, vehicleData) {

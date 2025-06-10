@@ -8,12 +8,18 @@ import lombok.Getter;
 public class RecommendedFishingTime {
     private String date;
     private String time;
-    private String fishType;
+    private String fishName;
     private String waterTemp;
     private String waveHeight;
     private String airTemp;
-    private String currentSpeed;  // TRIP 타입은 null
-    private String tide;          // TRIP 타입은 null
+    private String currentSpeed;
+    private String windSpeed;
+    private String weather;
     private String fishingIndex;
-    private int fishingScore;
+    private String area;
+    private String location;
+    private double stLat;
+    private double stLon;
+    private String fishingScore;
+    private String tide;
 }

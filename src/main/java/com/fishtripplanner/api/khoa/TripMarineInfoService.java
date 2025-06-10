@@ -40,16 +40,23 @@ public class TripMarineInfoService {
                 RecommendedFishingTime time = RecommendedFishingTime.builder()
                         .date(node.path("predDate").asText())
                         .time(node.path("predType").asText())
-                        .fishType("해양예보")
+                        .fishName("해양예보")
                         .waterTemp(node.path("avgWaterTemp").asText())
                         .waveHeight(node.path("avgWaveHeight").asText())
                         .airTemp(node.path("avgAirTemp").asText())
-                        .fishingScore(0) // 필요시 값 매핑
+                        .windSpeed(node.path("avgWindSpeed").asText())
+                        .weather(node.path("strWeather").asText())
                         .fishingIndex(node.path("totalScoreStr").asText())
+                        .area(node.path("area").asText())
+                        .location(node.path("location").asText())
+                        .stLat(node.path("stLat").asDouble())
+                        .stLon(node.path("stLon").asDouble())
+                        .fishingScore(String.valueOf(0))
                         .build();
                 recommendedTimes.add(time);
             }
             result.setRecommendedTimes(recommendedTimes);
+
 
         } catch (Exception e) {
             log.error("TRIP 해양예보 파싱 오류", e);
