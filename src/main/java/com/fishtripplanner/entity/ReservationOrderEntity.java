@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reservation_order")
@@ -28,16 +29,18 @@ public class ReservationOrderEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "available_date", nullable = false)
-    private LocalDate availableDate;
+    @Column(name = "reservation_date", nullable = false)
+    private LocalDate reservationDate;  // ✅ 예약 날짜
 
     @Column(nullable = false)
     private int count;
 
-    @Column(name = "reserved_at", nullable = false)
-    private LocalDate reservedAt;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;  // ✅ 예약 생성 시간
 
     @Column(nullable = false)
     private boolean paid;
 
+    @Column(name = "service_time", nullable = false)
+    private String serviceTime;  // ✅ 예약 이행 시간 (ex. 07:30~16:30)
 }

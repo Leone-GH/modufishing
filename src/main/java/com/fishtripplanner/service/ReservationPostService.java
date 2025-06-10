@@ -34,27 +34,18 @@ public class ReservationPostService {
     private final ReservationOrderRepository reservationOrderRepository;
 
     /**
-     * 예약글을 생성하고, 여러 지역을 하나의 예약글에 연결합니다.
-     * @param request 예약글에 대한 요청 정보
-     * @param user 예약글 작성자
-     * @return 생성된 예약글 응답 리스트
+     * ✅ 예약글을 생성하고, 여러 지역을 하나의 예약글에 연결합니다.
      */
     public List<ReservationPostResponse> createReservationPosts(ReservationPostRequest request, User user) {
-        // 지역 목록을 다중으로 받아옵니다
         List<RegionEntity> regions = regionRepository.findAllById(request.getRegionIds());
-
-        // 예약글을 생성하고 여러 지역을 설정합니다
-        ReservationPost post = request.toEntity(regions);  // 여러 지역을 전달하여 예약글 생성
-        post.setOwner(user);  // 예약글 작성자 설정
-
-        // 어종 설정
         List<FishTypeEntity> fishTypes = fishTypeRepository.findAllById(request.getFishTypeIds());
+
+        ReservationPost post = request.toEntity(regions);
+        post.setOwner(user);
         post.setFishTypes(fishTypes);
 
-        // 예약글 저장
         reservationPostRepository.save(post);
 
-        // 예약 가능한 날짜 처리
         List<ReservationPostAvailableDate> availableDates = request.getAvailableDates().stream()
                 .map(date -> ReservationPostAvailableDate.builder()
                         .reservationPost(post)
@@ -62,23 +53,13 @@ public class ReservationPostService {
                         .build())
                 .toList();
 
-        // 예약 가능한 날짜를 저장
         availableDateRepository.saveAll(availableDates);
 
-        // 예약글 응답 생성 후 반환
         return List.of(ReservationPostResponse.from(post));
     }
 
     /**
-     * 예약글을 필터링하여 검색합니다.
-     * @param type 예약 유형
-     * @param regionIds 지역 ID 리스트
-     * @param dates 예약 날짜 리스트
-     * @param fishTypes 어종 리스트
-     * @param keyword 검색어
-     * @param sortKey 정렬 기준
-     * @param pageable 페이지 설정
-     * @return 예약글 페이지
+     * ✅ 예약글을 필터링하여 검색합니다.
      */
     public Page<ReservationPost> filterPosts(
             ReservationType type,
@@ -93,16 +74,15 @@ public class ReservationPostService {
         List<String> safeFishTypes = (fishTypes == null || fishTypes.isEmpty()) ? null : fishTypes;
         String safeKeyword = (keyword == null || keyword.isBlank()) ? null : keyword;
 
-        // 정렬 기준 설정
         Sort sort = switch (sortKey) {
             case "priceAsc"  -> Sort.by("price").ascending();
             case "priceDesc" -> Sort.by("price").descending();
             case "latest"    -> Sort.by("createdAt").descending();
             default          -> Sort.by("createdAt").descending();
         };
+
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        // 조건 키에 따라 필터링 수행
         String conditionKey = String.format("%s-%s-%s",
                 safeRegionIds != null,
                 dates != null,
@@ -127,62 +107,44 @@ public class ReservationPostService {
     }
 
     /**
-     * 등록된 어종 이름을 가져옵니다.
-     * @return 어종 이름 리스트
+     * ✅ 등록된 어종 이름 목록을 가져옵니다.
      */
     public List<String> getFishTypeNames() {
         return reservationPostRepository.findAllFishTypeNames().stream().sorted().toList();
     }
 
     /**
-     * 사용된 지역 이름을 가져옵니다.
-     * @return 사용된 지역 이름 리스트
+     * ✅ 사용된 지역 이름을 가져옵니다.
      */
     public List<String> getUsedRegionNames() {
         return reservationPostRepository.findAllRegionNames();
     }
 
     /**
-     * 예약글을 저장합니다.
-     * @param dto 예약글 생성에 필요한 정보
+     * ✅ 예약글을 저장합니다 (폼 기반 생성).
      */
     public void saveReservation(ReservationCreateRequestDto dto) {
-        if (dto.getUserId() == null) {
-            throw new IllegalArgumentException("유저 ID는 필수입니다.");
-        }
+        if (dto.getUserId() == null) throw new IllegalArgumentException("유저 ID는 필수입니다.");
+        if (dto.getRegionIds() == null || dto.getRegionIds().isEmpty()) throw new IllegalArgumentException("지역 ID는 필수입니다.");
+        if (dto.getFishTypeNames() == null || dto.getFishTypeNames().isEmpty()) throw new IllegalArgumentException("어종 정보는 필수입니다.");
+        if (dto.getAvailableDates() == null || dto.getAvailableDates().isEmpty()) throw new IllegalArgumentException("예약 가능 날짜는 필수입니다.");
 
-        if (dto.getRegionIds() == null || dto.getRegionIds().isEmpty()) {
-            throw new IllegalArgumentException("지역 ID 리스트는 비어 있을 수 없습니다.");
-        }
-
-        if (dto.getFishTypeNames() == null || dto.getFishTypeNames().isEmpty()) {
-            throw new IllegalArgumentException("어종 리스트는 비어 있을 수 없습니다.");
-        }
-
-        if (dto.getAvailableDates() == null || dto.getAvailableDates().isEmpty()) {
-            throw new IllegalArgumentException("예약 가능 날짜는 1개 이상 입력되어야 합니다.");
-        }
-
-        // 유저 조회
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
-        // 지역과 어종 리스트 조회
         List<RegionEntity> regions = regionRepository.findAllById(dto.getRegionIds());
         List<FishTypeEntity> fishTypes = fishTypeRepository.findByNameIn(dto.getFishTypeNames());
 
-        // 예약글 생성
         ReservationPost post = new ReservationPost();
         post.setTitle(dto.getTitle());
         post.setType(ReservationType.valueOf(dto.getType()));
-        post.setRegions(regions);  // 여러 지역 설정
+        post.setRegions(regions);
         post.setContent(dto.getContent());
         post.setPrice(dto.getPrice());
         post.setCompanyName(dto.getCompanyName());
         post.setOwner(user);
         post.setFishTypes(fishTypes);
 
-        // 이미지 저장 처리
         if (dto.getImageFile() != null && !dto.getImageFile().isEmpty()) {
             try {
                 String fileName = UUID.randomUUID() + "_" + dto.getImageFile().getOriginalFilename();
@@ -200,7 +162,6 @@ public class ReservationPostService {
 
         reservationPostRepository.save(post);
 
-        // 예약 가능 날짜 처리
         List<ReservationPostAvailableDate> dates = dto.getAvailableDates().stream()
                 .map(d -> {
                     ReservationPostAvailableDate ad = new ReservationPostAvailableDate();
@@ -215,15 +176,12 @@ public class ReservationPostService {
     }
 
     /**
-     * 예약글 상세 정보를 가져옵니다.
-     * @param postId 예약글 ID
-     * @return 예약글 상세 정보 DTO
+     * ✅ 예약글 상세 정보를 조회합니다.
      */
     public ReservationDetailResponseDto getReservationDetail(Long postId) {
         ReservationPost post = reservationPostRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약글이 존재하지 않습니다."));
 
-        // RegionEntity → RegionDto 변환
         List<ReservationDetailResponseDto.RegionDto> regionDtos = post.getRegions().stream()
                 .map(region -> ReservationDetailResponseDto.RegionDto.builder()
                         .name(region.getName())
@@ -231,24 +189,21 @@ public class ReservationPostService {
                         .build())
                 .collect(Collectors.toList());
 
-        // 예약 가능한 날짜 처리
         List<ReservationDetailResponseDto.AvailableDateDto> dateDtos = post.getAvailableDates().stream().map(ad -> {
-            // sumCountByPostIdAndDate로 예약된 인원 수를 가져옴
             Integer reserved = reservationOrderRepository.sumPaidCountByPostIdAndDate(
                     post.getId(), ad.getAvailableDate()
             );
-            if (reserved == null) reserved = 0;  // 예약된 인원이 없으면 0으로 처리
+            if (reserved == null) reserved = 0;
 
             return ReservationDetailResponseDto.AvailableDateDto.builder()
                     .date(ad.getAvailableDate().toString())
                     .rawDate(ad.getAvailableDate().toString())
                     .time(ad.getTime())
                     .capacity(ad.getCapacity())
-                    .remaining(ad.getCapacity() - reserved)  // 남은 좌석 수 계산
+                    .remaining(ad.getCapacity() - reserved)
                     .build();
         }).toList();
 
-        // 최종 DTO 반환
         return ReservationDetailResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -265,5 +220,10 @@ public class ReservationPostService {
                 .build();
     }
 
-
+    /**
+     * ✅ 특정 사업자가 작성한 예약글 전체 조회 (관리용).
+     */
+    public List<ReservationPost> getPostsByOwner(Long userId) {
+        return reservationPostRepository.findAllByOwner_Id(userId);
+    }
 }

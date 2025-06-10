@@ -3,6 +3,7 @@ package com.fishtripplanner.domain.reservation;
 import com.fishtripplanner.domain.User;
 import com.fishtripplanner.entity.FishTypeEntity;
 import com.fishtripplanner.entity.RegionEntity;
+import com.fishtripplanner.entity.ReservationOrderEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -89,5 +90,11 @@ public class ReservationPost {
                 .map(e -> "(" + e.getKey() + ")" + String.join(" ", e.getValue()))
                 .collect(Collectors.joining(", "));
     }
+
+    @OneToMany(mappedBy = "reservationPost", fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
+    private List<ReservationOrderEntity> reservationOrders = new ArrayList<>();
+
+
 
 }

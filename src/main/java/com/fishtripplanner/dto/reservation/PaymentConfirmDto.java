@@ -10,15 +10,15 @@ import java.time.LocalDate;
 public class PaymentConfirmDto {
     private Long reservationPostId;
     private Long userId;
-    private LocalDate availableDate;
+    private LocalDate reservationDate; // ✅ 이름 변경
     private int count;
     private boolean paid;
 
-    // ✅ 추가된 생성자
+    // ✅ 생성자 수정
     public PaymentConfirmDto(Long reservationPostId, Long userId, String date, int count, boolean paid) {
         this.reservationPostId = reservationPostId;
         this.userId = userId;
-        this.availableDate = LocalDate.parse(date);
+        this.reservationDate = LocalDate.parse(date);
         this.count = count;
         this.paid = paid;
     }
@@ -27,7 +27,7 @@ public class PaymentConfirmDto {
         return ReservationOrderRequestDto.builder()
                 .reservationPostId(reservationPostId)
                 .userId(userId)
-                .availableDate(availableDate)
+                .reservationDate(reservationDate) // ✅ 여기 이름 변경
                 .count(count)
                 .paid(paid)
                 .build();

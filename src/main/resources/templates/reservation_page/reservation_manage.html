@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+
+<head>
+  <title layout:fragment="title">예약글 관리</title>
+
+  <!-- ✅ 이 페이지 전용 CSS -->
+  <th:block layout:fragment="add-css">
+    <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_manager.css}">
+  </th:block>
+</head>
+
+<body>
+<main layout:fragment="content" class="manage-page-container">
+  <h1>내 예약글 관리</h1>
+
+  <table>
+    <thead>
+    <tr>
+      <th>제목</th>
+      <th>유형</th>
+      <th>지역</th>
+      <th>작성일</th>
+      <th>예약수</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="post : ${posts}">
+      <td th:text="${post.title}">제목</td>
+      <td th:text="${post.type.getKorean()}">선상</td>
+      <td th:text="${post.getFormattedRegionString()}">지역</td>
+      <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">날짜</td>
+      <td th:text="${post.reservationOrders.size()}">0</td>
+      <td>
+        <button type="button" th:onclick="'toggleOrders(' + ${post.id} + ')'">예약자 보기</button>
+        <a th:href="@{'/reservation/edit/' + ${post.id}}">수정</a>
+        <a th:href="@{'/reservation/delete/' + ${post.id}}" onclick="return confirm('정말 삭제할까요?')">삭제</a>
+      </td>
+    </tr>
+
+    <!-- 예약자 리스트 숨김행 -->
+    <tr th:each="post : ${posts}" th:id="'orders-' + ${post.id}" style="display: none;">
+      <td colspan="6">
+        <table class="inner-table">
+          <thead>
+          <tr>
+            <th>예약자</th>
+            <th>예약 날짜</th>
+            <th>주문 일시</th>
+            <th>인원 수</th>
+            <th>결제 상태</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="order : ${post.reservationOrders}">
+            <td th:text="${order.user.name}">홍길동</td>
+            <td>
+              <span th:text="${order.reservationDate}">2025-06-28</span>
+              (<span th:text="${order.serviceTime}">00:00~00:00</span>)
+            </td>
+            <td th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">2025-06-25 14:22</td>
+            <td th:text="${order.count}">2</td>
+            <td th:text="${order.paid ? '결제 완료' : '미결제'}">PAID</td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(post.reservationOrders)}">
+            <td colspan="5" style="text-align: center;">예약자가 없습니다.</td>
+          </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</main>
+
+<!-- ✅ 전용 JS -->
+<th:block layout:fragment="add-js">
+  <script>
+    function toggleOrders(postId) {
+      const row = document.getElementById(`orders-${postId}`);
+      row.style.display = (row.style.display === 'none') ? 'table-row' : 'none';
+    }
+  </script>
+</th:block>
+</body>
+</html>
