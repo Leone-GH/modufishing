@@ -7,4 +7,4 @@ COPY . .
 RUN chmod +x ./gradlew
 RUN ./gradlew build
 
-CMD ["java", "-jar", "build/libs/app.jar"]
+CMD ["java", "-jar", "build/libs/fishtrip-1.0-SNAPSHOT.jar"]
