@@ -22,7 +22,7 @@ dependencies {
     // Spring Data JPA + DB
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql:42.5.1'
-    runtimeOnly 'com.oracle.database.jdbc:ojdbc8' // 필요 시
+    runtimeOnly 'com.oracle.database.jdbc:ojdbc8' // Oracle DB 사용 시만 필요
 
     // Spring Security + OAuth2
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -53,11 +53,13 @@ tasks.withType(JavaCompile) {
     options.compilerArgs += '-parameters'
 }
 
-// 메인 클래스 명시 (Spring Boot용)
+// 메인 클래스 명시
 application {
     mainClass = 'com.fishtripplanner.FishTripApplication'
 }
 
+// JAR 설정 명시
 bootJar {
+    archiveFileName = 'app.jar' // Render에서 명확히 JAR 이름을 인식 가능하게
     mainClass = 'com.fishtripplanner.FishTripApplication'
 }
