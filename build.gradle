@@ -53,13 +53,22 @@ tasks.withType(JavaCompile) {
     options.compilerArgs += '-parameters'
 }
 
+// JAR 설정 명시 (Render에서 포트를 자동 감지할 수 있게)
+bootJar {
+    archiveFileName = 'app.jar'
+    manifest {
+        attributes 'Start-Class': 'com.fishtripplanner.FishTripApplication'
+    }
+}
+
 // 메인 클래스 명시
 application {
     mainClass = 'com.fishtripplanner.FishTripApplication'
 }
 
-// JAR 설정 명시
-bootJar {
-    archiveFileName = 'app.jar' // Render에서 명확히 JAR 이름을 인식 가능하게
-    mainClass = 'com.fishtripplanner.FishTripApplication'
+// 리소스 누락 방지
+processResources {
+    from('src/main/resources') {
+        include '**/*'
+    }
 }
