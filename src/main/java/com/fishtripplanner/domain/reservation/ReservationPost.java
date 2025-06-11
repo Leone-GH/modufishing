@@ -96,5 +96,12 @@ public class ReservationPost {
     private List<ReservationOrderEntity> reservationOrders = new ArrayList<>();
 
 
+    // 편의 메서드 추가: 예약글 작성 시 묶어서 초기화 가능
+    public void setRegionAndContentAndPriceAndCompany(List<RegionEntity> regions, String content, int price, String companyName) {
+        this.setRegions(regions);
+        this.setContent(content);
+        this.setPrice(price);
+        this.setCompanyName(companyName);
+    }
 
 }

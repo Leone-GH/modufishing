@@ -31,46 +31,53 @@
     <tbody>
     <tr th:each="post : ${posts}">
       <td th:text="${post.title}">제목</td>
-      <td th:text="${post.type.getKorean()}">선상</td>
+      <td th:text="${post.type.getKorean()}">유형</td>
       <td th:text="${post.getFormattedRegionString()}">지역</td>
       <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">날짜</td>
       <td th:text="${post.reservationOrders.size()}">0</td>
       <td>
-        <button type="button" th:onclick="'toggleOrders(' + ${post.id} + ')'">예약자 보기</button>
+        <button type="button" th:onclick="'toggleOrders(' + ${post.id} + ')'">상세 보기</button>
         <a th:href="@{'/reservation/edit/' + ${post.id}}">수정</a>
         <a th:href="@{'/reservation/delete/' + ${post.id}}" onclick="return confirm('정말 삭제할까요?')">삭제</a>
       </td>
     </tr>
 
-    <!-- 예약자 리스트 숨김행 -->
+    <!-- 날짜별 예약자 리스트 테이블로 출력 -->
     <tr th:each="post : ${posts}" th:id="'orders-' + ${post.id}" style="display: none;">
       <td colspan="6">
-        <table class="inner-table">
-          <thead>
-          <tr>
-            <th>예약자</th>
-            <th>예약 날짜</th>
-            <th>주문 일시</th>
-            <th>인원 수</th>
-            <th>결제 상태</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="order : ${post.reservationOrders}">
-            <td th:text="${order.user.name}">홍길동</td>
-            <td>
-              <span th:text="${order.reservationDate}">2025-06-28</span>
-              (<span th:text="${order.serviceTime}">00:00~00:00</span>)
-            </td>
-            <td th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">2025-06-25 14:22</td>
-            <td th:text="${order.count}">2</td>
-            <td th:text="${order.paid ? '결제 완료' : '미결제'}">PAID</td>
-          </tr>
-          <tr th:if="${#lists.isEmpty(post.reservationOrders)}">
-            <td colspan="5" style="text-align: center;">예약자가 없습니다.</td>
-          </tr>
-          </tbody>
-        </table>
+        <div th:each="dateDto : ${availableDateMap[post.id]}">
+          <table class="inner-table">
+            <thead>
+            <tr>
+              <th colspan="4" style="background-color: #f0f8ff; text-align: left;">
+                날짜: <span th:text="${dateDto.date}">2025-06-28</span>
+                (<span th:text="${dateDto.time}">07:30~16:30</span>)<br/>
+                총 정원: <span th:text="${dateDto.capacity}">25</span> /
+                예약 인원: <span th:text="${dateDto.capacity - dateDto.remaining}">1</span> /
+                남은 정원: <span th:text="${dateDto.remaining}">24</span>
+              </th>
+            </tr>
+            <tr>
+              <th>예약자</th>
+              <th>예약 일시</th>
+              <th>인원 수</th>
+              <th>결제 상태</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${dateDto.orders}">
+              <td th:text="${order.userNick}">홍길동</td>
+              <td th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">2025-06-25 14:22</td>
+              <td th:text="${order.count}">2</td>
+              <td th:text="${order.paid ? '결제 완료' : '미결제'}">결제 완료</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(dateDto.orders)}">
+              <td colspan="4" style="text-align: center;">예약자가 없습니다.</td>
+            </tr>
+            </tbody>
+          </table>
+          <br/>
+        </div>
       </td>
     </tr>
     </tbody>
