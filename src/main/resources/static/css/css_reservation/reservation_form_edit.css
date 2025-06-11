@@ -1,0 +1,166 @@
+/* 메인 컨테이너 스타일 */
+.reservation-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+  font-family: "Noto Sans KR", sans-serif;
+  background-color: #ffffff; /* 기존보다 더 깔끔하게 */
+  border: 1px solid #eee;     /* 미세 경계 */
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box; /* 추가 */
+}
+
+/* 제목 */
+.reservation-form-container h1 {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+/* 폼 그룹 간 여백 */
+.form-group {
+  margin-bottom: 24px;
+}
+
+/* 버튼과 텍스트 사이 여백 */
+button + .selection-placeholder {
+  margin-top: 8px;
+}
+
+/* 라벨 공통 - 강조색 조정 */
+.reservation-form-container label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333; /* 더 진하게 수정 */
+}
+
+/* 기본 입력 요소 스타일 */
+.reservation-form-container input[type="text"],
+.reservation-form-container input[type="number"],
+.reservation-form-container textarea,
+.reservation-form-container select {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #fafafa;
+  transition: border-color 0.3s ease;
+}
+
+/* 포커스 스타일 */
+.reservation-form-container input[type="text"]:focus,
+.reservation-form-container input[type="number"]:focus,
+.reservation-form-container select:focus,
+.reservation-form-container textarea:focus {
+  border-color: #0088cc;
+  outline: none;
+}
+
+/* 제출 버튼 */
+.reservation-form-container button[type="submit"] {
+  display: block; /* 추가 */
+  width: 100%;
+  margin: 0 auto; /* 추가 */
+  background-color: #0088cc;
+  color: white;
+  padding: 15px 25px;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-sizing: border-box; /* 추가 */
+}
+
+.reservation-form-container button[type="submit"]:hover {
+  background-color: #007bb5;
+}
+
+/* 날짜+시간+정원 한 줄 */
+.date-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 10px;
+  margin-bottom: 12px;
+  background-color: #e9f5ff;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #b0d6f3;
+}
+
+/* 날짜 항목 삭제 버튼 */
+.remove-date {
+  background: transparent;
+  border: none;
+  color: #f44336;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+  padding: 0;
+  margin-left: 4px;
+  cursor: pointer;
+  font-family: "Arial", "Helvetica Neue", sans-serif;
+}
+
+.remove-date:hover {
+  opacity: 0.7;
+}
+
+/* 가격 표시 */
+.price-display {
+  margin-top: 8px;
+  color: #555;
+  font-weight: bold;
+}
+
+/* 가격 입력창 정렬 */
+.price-input {
+  text-align: right;
+  font-family: monospace, "Noto Sans KR", sans-serif;
+}
+
+/* 선택 텍스트 공통 스타일 - 색상/강조 완화 */
+.selection-placeholder,
+.selection-result {
+  margin-top: 8px;
+  font-weight: normal;  /* 강조 제거 */
+  color: #888;          /* 연한 회색 */
+}
+
+/* 모바일 대응 */
+@media (max-width: 600px) {
+  .reservation-form-container {
+    padding: 20px;
+  }
+
+  .reservation-form-container h1 {
+    font-size: 24px;
+  }
+
+  .form-group {
+    margin-bottom: 18px; /* 줄임 */
+  }
+
+  .date-entry {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .remove-date {
+    font-size: 18px; /* 모바일에서 좀 더 보기 쉽게 */
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px; /* iOS 확대 방지 */
+  }
+}

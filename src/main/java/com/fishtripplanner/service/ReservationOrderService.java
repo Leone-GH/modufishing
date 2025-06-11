@@ -22,6 +22,12 @@ public class ReservationOrderService {
     private final ReservationPostRepository reservationPostRepository;
     private final UserRepository userRepository;
 
+    /**
+     * ✅ 예약 주문 생성
+     * - 좌석 수 확인
+     * - 날짜 및 시간 확인
+     * - 유저/예약글 유효성 체크
+     */
     public ReservationOrderEntity createOrder(ReservationOrderRequestDto dto) {
         // 🔹 예약글 조회
         ReservationPost post = reservationPostRepository.findById(dto.getReservationPostId())
@@ -31,19 +37,19 @@ public class ReservationOrderService {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
 
-        // 🔹 날짜 확인
+        // 🔹 예약 날짜 확인
         LocalDate reservationDate = dto.getReservationDate();
 
-        // 🔹 해당 날짜의 예약 가능 시간/수용 인원 가져오기
+        // 🔹 해당 날짜의 예약 정보 추출
         ReservationPostAvailableDate matchedDate = post.getAvailableDates().stream()
                 .filter(d -> d.getAvailableDate().equals(reservationDate))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 날짜는 예약 불가"));
 
         int capacity = matchedDate.getCapacity();
-        String serviceTime = matchedDate.getTime(); // 🔥 예약 이행 시간 확보
+        String serviceTime = matchedDate.getTime();
 
-        // 🔹 해당 날짜의 현재까지 예약된 인원
+        // 🔹 현재까지 예약된 인원 수
         Integer reservedCount = reservationOrderRepository.sumPaidCountByPostIdAndDate(post.getId(), reservationDate);
         if (reservedCount == null) reservedCount = 0;
 
@@ -52,14 +58,14 @@ public class ReservationOrderService {
             throw new IllegalStateException("남은 자리가 부족합니다. 남은 자리: " + remaining);
         }
 
-        // 🔹 최종 예약 생성
+        // 🔹 예약 엔티티 생성 및 저장
         ReservationOrderEntity order = ReservationOrderEntity.builder()
                 .reservationPost(post)
                 .user(user)
-                .reservationDate(reservationDate)     // ✅ 필드명 일치
-                .serviceTime(serviceTime)             // ✅ 필드명 일치
+                .reservationDate(reservationDate)
+                .serviceTime(serviceTime)
                 .count(dto.getCount())
-                .createdAt(LocalDateTime.now().withNano(0))  // ✅ 예약 시각
+                .createdAt(LocalDateTime.now().withNano(0))
                 .paid(dto.isPaid())
                 .build();
 

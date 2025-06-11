@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fishtripplanner.domain.reservation.ReservationPost;
 import com.fishtripplanner.dto.reservation.PaymentConfirmDto;
 import com.fishtripplanner.entity.ReservationOrderEntity;
-import com.fishtripplanner.repository.ReservationPostRepository;
-import com.fishtripplanner.service.ReservationOrderService;
 import com.fishtripplanner.security.CustomUserDetails;
+import com.fishtripplanner.service.ReservationOrderService;
+import com.fishtripplanner.service.ReservationPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class PaymentController {
 
     private final ReservationOrderService reservationOrderService;
-    private final ReservationPostRepository reservationPostRepository;
+    private final ReservationPostService reservationPostService;
 
     @GetMapping("/reservation/payment")
     public String showPaymentPage(@RequestParam Long postId,
@@ -31,8 +31,7 @@ public class PaymentController {
                                   @RequestParam int count,
                                   @AuthenticationPrincipal CustomUserDetails userDetails,
                                   Model model) {
-        ReservationPost post = reservationPostRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+        ReservationPost post = reservationPostService.findByIdOrThrow(postId);
 
         model.addAttribute("post", post);
         model.addAttribute("date", date);
@@ -99,8 +98,7 @@ public class PaymentController {
             int amountPaid = (int) paymentData.get("amount");
             String status = (String) paymentData.get("status");
 
-            ReservationPost post = reservationPostRepository.findById(postId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid postId"));
+            ReservationPost post = reservationPostService.findByIdOrThrow(postId);
             int expected = post.getPrice() * count;
 
             if (!"paid".equals(status) || amountPaid != expected) {
