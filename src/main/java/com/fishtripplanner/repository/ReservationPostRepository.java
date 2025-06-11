@@ -183,6 +183,9 @@ public interface ReservationPostRepository extends JpaRepository<ReservationPost
            OR LOWER(reg.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
     """)
     List<ReservationPost> findByKeyword(@Param("keyword") String keyword);
+
+    List<ReservationPost> findAllByOwner_Id(Long ownerId);
+
 }
 
 

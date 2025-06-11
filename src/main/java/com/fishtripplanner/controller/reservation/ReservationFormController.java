@@ -24,7 +24,7 @@ public class ReservationFormController {
     private final BusinessInfoRepository businessInfoRepository;
 
     // ✅ 예약글 작성 폼 페이지 출력
-    @GetMapping("/write")
+    @GetMapping("/form")
     public String showForm(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         model.addAttribute("form", new ReservationCreateRequestDto());
         model.addAttribute("regions", regionRepository.findAll());

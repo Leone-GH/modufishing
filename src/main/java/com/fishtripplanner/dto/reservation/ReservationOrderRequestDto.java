@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class ReservationOrderRequestDto {
     private Long reservationPostId;
     private Long userId;
-    private LocalDate availableDate;
+    private LocalDate reservationDate;
     private int count;
     private boolean paid;
 }
