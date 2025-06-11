@@ -296,6 +296,10 @@
   text-align: left;
 }
 
+.spacing-right {
+  margin-right: 1.25rem;  /* 원하는 만큼 조절 */
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
   .header {

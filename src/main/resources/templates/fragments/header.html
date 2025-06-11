@@ -92,7 +92,13 @@
 
         <div class="navRight">
             <div sec:authorize="hasRole('OWNER')">
-                <button class="menuButton" onclick="navigatePage('/reservation/write')">예약글 작성(사업자용)</button>
+                <button class="menuButton spacing-right" onclick="navigatePage('/reservation/form')">
+                    예약글 작성(사업자용)
+                </button>
+                <button class="menuButton" onclick="navigatePage('/reservation/manage')">
+                    예약 관리
+                </button>
+
             </div>
 
             <div sec:authorize="isAuthenticated()">
