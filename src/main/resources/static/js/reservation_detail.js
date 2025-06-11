@@ -1,4 +1,8 @@
+console.log("✅ reservation_detail.js 시작됨");
+
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOMContentLoaded 이벤트 발생");
+
   const container = document.body;
 
   // ✅ 요일 글자 스타일링 (기존 그대로)
@@ -29,6 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const countInput = button.parentElement.querySelector(".reserve-count");
     const count = parseInt(countInput.value);
 
+    console.log("postId:", postId);
+    console.log("availableDate:", availableDate);
+    console.log("count:", count);
+
     if (!postId || !availableDate || isNaN(count) || count < 1) {
       alert("예약 정보가 유효하지 않습니다.");
       return;
@@ -39,3 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = url;
   });
 });
+
+
+
