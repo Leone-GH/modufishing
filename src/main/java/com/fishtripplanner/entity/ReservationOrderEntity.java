@@ -34,8 +34,8 @@ public class ReservationOrderEntity {
     @Column(nullable = false)
     private int count;
 
-    @Column(name = "reserved_at", nullable = false)
-    private LocalDate reservedAt;
+    @Column(name = "created_At;", nullable = false)
+    private LocalDate createdAt;;
 
     @Column(nullable = false)
     private boolean paid;

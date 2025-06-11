@@ -1,23 +1,17 @@
 // PartyController.java
 package com.fishtripplanner.controller.party;
 
-import com.fishtripplanner.domain.User;
-import com.fishtripplanner.domain.party.Party;
-import com.fishtripplanner.domain.party.PartyMember;
-import com.fishtripplanner.domain.party.Waypoint;
-import com.fishtripplanner.domain.party.WaypointType;
 import com.fishtripplanner.dto.party.PartyCreateRequest;
-import com.fishtripplanner.dto.party.PartyMemberRequest;
-import com.fishtripplanner.dto.party.WaypointRequest;
-import com.fishtripplanner.repository.PartyMemberRepository;
+import com.fishtripplanner.domain.party.Party;
 import com.fishtripplanner.repository.PartyRepository;
-import com.fishtripplanner.repository.UserRepository;
-import com.fishtripplanner.repository.WaypointRepository;
-import jakarta.transaction.Transactional;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,69 +19,73 @@ import org.springframework.web.bind.annotation.*;
 public class PartyController {
 
     private final PartyRepository partyRepository;
-    private final WaypointRepository waypointRepository;
-    private final PartyMemberRepository partyMemberRepository;
-    private final UserRepository userRepository;
+    // + 필요시 Waypoint, PartyMember 등 리포지토리 추가
 
+    // 1차 폼 GET: 파티 모집 1단계 폼 띄우기
     @GetMapping("/create")
-    public String createForm(Model model) {
+    public String showCreateForm(Model model) {
         model.addAttribute("partyForm", new PartyCreateRequest());
         return "party/create";
     }
+    // 1차 폼 POST: 세션에 데이터 저장, 2차 폼 이동
+    @PostMapping("/saveRouteInfo")
+    public String saveRouteInfo(@ModelAttribute PartyCreateRequest request, HttpSession session) {
+        session.setAttribute("partyTemp", request);
+        return "redirect:/party/createDetail";
+    }
 
-    @PostMapping("/save")
-    @Transactional
-    public String saveParty(@ModelAttribute PartyCreateRequest request) {
+    // 2차 폼 GET: 세션에서 데이터 읽어서 뷰에 전달
+    @GetMapping("/createDetail")
+    public String showDetailForm(HttpSession session, Model model) {
+        PartyCreateRequest routeInfo = (PartyCreateRequest) session.getAttribute("partyTemp");
+        if (routeInfo == null) return "redirect:/party/create";
+        model.addAttribute("routeInfo", routeInfo);
+
+        // marineInfoJson → HTML 변환 (간단 요약)
+        if (routeInfo.getMarineInfoJson() != null) {
+            String html = "<pre style='font-size:0.9em;white-space:pre-wrap;'>" + routeInfo.getMarineInfoJson() + "</pre>";
+            model.addAttribute("marineInfoHtml", html);
+        }
+        return "party/create-detail"; // 아래 html
+    }
+
+    // 2차 폼 POST: 입력값 합쳐서 최종 저장
+    @PostMapping("/saveDetail")
+    public String saveDetail(
+            @ModelAttribute PartyCreateRequest detailRequest,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            HttpSession session
+    ) {
+        PartyCreateRequest routeInfo = (PartyCreateRequest) session.getAttribute("partyTemp");
+        if (routeInfo == null) return "redirect:/party/create";
+
+        // 2차 폼 입력값 합치기
+        routeInfo.setTitle(detailRequest.getTitle());
+        routeInfo.setDepartureDesc(detailRequest.getDepartureDesc());
+        routeInfo.setDestinationDesc(detailRequest.getDestinationDesc());
+        routeInfo.setWaypointsDesc(detailRequest.getWaypointsDesc());
+        routeInfo.setDescription(detailRequest.getDescription());
+        routeInfo.setDeadline(detailRequest.getDeadline());
+        // 이미지 등은 별도 저장
+
+        // 실제 Party 엔티티 생성 및 저장 (아래 예시는 단순화)
         Party party = Party.builder()
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .detail(request.getDetail())
-                .region(request.getRegion())
-                .departurePoint(request.getDeparturePoint())
-                .departureLat(request.getDepartureLat())
-                .departureLng(request.getDepartureLng())
-                .destination(request.getDestination())
-                .destinationLat(request.getDestinationLat())
-                .destinationLng(request.getDestinationLng())
-                .departureTime(request.getDepartureTime())
-                .deadline(request.getDeadline())
-                .maxParticipants(request.getMaxParticipants())
-                .estimatedCost(request.getEstimatedCost())
-                .memberDetail(request.getMemberDetail())
+                .title(routeInfo.getTitle())
+                .description(routeInfo.getDescription())
+                .departurePoint(routeInfo.getDeparturePoint())
+                .departureLat(routeInfo.getDepartureLat())
+                .departureLng(routeInfo.getDepartureLng())
+                .destination(routeInfo.getDestination())
+                .destinationLat(routeInfo.getDestinationLat())
+                .destinationLng(routeInfo.getDestinationLng())
+                .departureTime(routeInfo.getDepartureTime())
+                .deadline(routeInfo.getDeadline())
                 .build();
 
         partyRepository.save(party);
+        // Waypoint, marineInfo, images 등 추가 저장 필요시 구현
 
-        if (request.getWaypoints() != null) {
-            int idx = 1;
-            for (WaypointRequest w : request.getWaypoints()) {
-                Waypoint waypoint = Waypoint.builder()
-                        .party(party)
-                        .name(w.getName())
-                        .lat(w.getLat())
-                        .lng(w.getLng())
-                        .type(WaypointType.WAYPOINT)
-                        .orderIndex(idx++)
-                        .stayTime(w.getStayTime())
-                        .build();
-                waypointRepository.save(waypoint);
-            }
-        }
-
-        if (request.getPartyMembers() != null) {
-            for (PartyMemberRequest pmr : request.getPartyMembers()) {
-                User user = userRepository.findByUsername(pmr.getUsername()).orElse(null);
-                if (user != null) {
-                    PartyMember pm = PartyMember.builder()
-                            .party(party)
-                            .user(user)
-                            .joinedAt(pmr.getJoinedAt())
-                            .build();
-                    partyMemberRepository.save(pm);
-                }
-            }
-        }
-
-        return "redirect:/";
+        session.removeAttribute("partyTemp");
+        return "redirect:/party/list";
     }
 }

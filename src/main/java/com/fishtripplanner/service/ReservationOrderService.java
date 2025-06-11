@@ -52,7 +52,7 @@ public class ReservationOrderService {
                 .user(user)
                 .availableDate(date)
                 .count(dto.getCount())
-                .reservedAt(LocalDate.now())
+                .createdAt(LocalDate.now())
                 .paid(dto.isPaid())
                 .build();
 

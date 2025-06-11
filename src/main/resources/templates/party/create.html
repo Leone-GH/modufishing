@@ -53,8 +53,7 @@
 <div>
   <Strong>닉네임 :</Strong>
 </div>
-<h1>파티 모집글 작성</h1>
-<div>파티게시물 제목 입력</div> <input type="text" name="title4party" id="title4party">
+<h1>정보입력</h1>
 <select name="triptype" id="triptype">
   <option value="boat">선상낚시 </option>
   <option value="rock">갯바위/방파제낚시</option>
@@ -65,7 +64,7 @@
 <div id="searchSuggestions"></div>
 <div id="searchModal" style="display:none; top:10%; left:50%; transform:translateX(-50%); background:white; padding:20px; border:1px solid #ccc; z-index:9999; max-height:400px; overflow:auto;"></div>
 <div class="container"style="display:flex">
-<form id="partyForm" method="post" th:action="@{/party/save}">
+  <form id="partyForm" method="post" th:action="@{/party/saveRouteInfo}">
   <label for="departure-date" id="lb4d" style="background-color: #007BFF;">출발일시 : <input type="datetime-local" id="departure-date" name="departure-date"></label>
   <input type="text" id="departurePoint" name="departurePoint" readonly placeholder="출발지">
   <input type="text" id="destination" name="destination" readonly placeholder="도착지">
