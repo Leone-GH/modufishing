@@ -44,6 +44,25 @@ a:hover, button:hover {
   opacity: 0.8;
 }
 
+/* --- 카드형 날짜별 예약 영역 --- */
+.reservation-date-card {
+  background: #f6fbff;
+  border: 1.5px solid #bae2fd;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(44, 109, 180, 0.04);
+  margin: 2.5rem 0 1.5rem 0;
+  padding: 1.5rem;
+}
+
+/* 날짜+정원 info */
+.reservation-date-header {
+  font-weight: bold;
+  font-size: 1.08rem;
+  margin-bottom: 1rem;
+  color: #266db6;
+  letter-spacing: 0.01em;
+}
+
 /* 내부 예약자 리스트 테이블 */
 .inner-table {
   width: 100%;
@@ -63,6 +82,13 @@ a:hover, button:hover {
   text-align: center;
 }
 
+/* 예약자 없음 메시지 */
+.empty-order {
+  color: #aaa;
+  font-style: italic;
+  background: #f9f9fa;
+}
+
 /* 날짜+정원 정보가 들어가는 상단 헤더 셀 */
 .inner-table th[colspan="4"] {
   background-color: #e6f4ff;
@@ -73,4 +99,20 @@ a:hover, button:hover {
   font-size: 1rem;
   line-height: 1.6;
   border: 1px solid #cbe1f5;
+}
+
+/* 반응형 개선(선택) */
+@media (max-width: 900px) {
+  .reservation-date-card {
+    padding: 0.7rem;
+    margin: 1.2rem 0;
+  }
+  .reservation-date-header {
+    font-size: 1rem;
+    margin-bottom: 0.7rem;
+  }
+  .inner-table th, .inner-table td {
+    font-size: 0.95rem;
+    padding: 0.4rem;
+  }
 }

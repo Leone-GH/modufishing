@@ -7,7 +7,6 @@
 <head>
   <title layout:fragment="title">예약글 관리</title>
 
-  <!-- ✅ 이 페이지 전용 CSS -->
   <th:block layout:fragment="add-css">
     <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_manager.css}">
   </th:block>
@@ -42,21 +41,19 @@
       </td>
     </tr>
 
-    <!-- 날짜별 예약자 리스트 테이블로 출력 -->
+    <!-- 날짜별 예약자 리스트 카드형 출력 -->
     <tr th:each="post : ${posts}" th:id="'orders-' + ${post.id}" style="display: none;">
-      <td colspan="6">
-        <div th:each="dateDto : ${availableDateMap[post.id]}">
+      <td colspan="6" style="background:none; border:none;">
+        <div th:each="dateDto : ${availableDateMap[post.id]}" class="reservation-date-card">
+          <div class="reservation-date-header">
+            날짜: <span th:text="${dateDto.date}">2025-06-28</span>
+            (<span th:text="${dateDto.time}">07:30~16:30</span>)<br/>
+            총 정원: <span th:text="${dateDto.capacity}">25</span> /
+            예약 인원: <span th:text="${dateDto.capacity - dateDto.remaining}">1</span> /
+            남은 정원: <span th:text="${dateDto.remaining}">24</span>
+          </div>
           <table class="inner-table">
             <thead>
-            <tr>
-              <th colspan="4" style="background-color: #f0f8ff; text-align: left;">
-                날짜: <span th:text="${dateDto.date}">2025-06-28</span>
-                (<span th:text="${dateDto.time}">07:30~16:30</span>)<br/>
-                총 정원: <span th:text="${dateDto.capacity}">25</span> /
-                예약 인원: <span th:text="${dateDto.capacity - dateDto.remaining}">1</span> /
-                남은 정원: <span th:text="${dateDto.remaining}">24</span>
-              </th>
-            </tr>
             <tr>
               <th>예약자</th>
               <th>예약 일시</th>
@@ -72,11 +69,10 @@
               <td th:text="${order.paid ? '결제 완료' : '미결제'}">결제 완료</td>
             </tr>
             <tr th:if="${#lists.isEmpty(dateDto.orders)}">
-              <td colspan="4" style="text-align: center;">예약자가 없습니다.</td>
+              <td colspan="4" class="empty-order">예약자가 없습니다.</td>
             </tr>
             </tbody>
           </table>
-          <br/>
         </div>
       </td>
     </tr>
@@ -84,7 +80,6 @@
   </table>
 </main>
 
-<!-- ✅ 전용 JS -->
 <th:block layout:fragment="add-js">
   <script>
     function toggleOrders(postId) {
