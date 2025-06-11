@@ -1,26 +1,22 @@
-/* ✅ 기본 바디 스타일 */
 body {
   font-family: sans-serif;
   font-size: clamp(15px, 1.4vw, 18px);
   margin: 0;
-  padding: 0; /* header 내려감 방지 */
+  padding: 0;
 }
 
-/* ✅ 페이지 제목 */
 h1 {
   text-align: center;
   font-size: clamp(24px, 2.5vw, 32px);
   margin-bottom: 25px;
 }
 
-/* ✅ 필터 컨테이너 */
 .filter-container {
   padding: 25px;
   margin: 0 auto 30px;
   max-width: 1200px;
 }
 
-/* 필터 버튼 묶음 */
 .filter-top-group {
   display: flex;
   justify-content: center;
@@ -29,7 +25,6 @@ h1 {
   margin-bottom: 25px;
 }
 
-/* 필터 버튼 하나 */
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -46,14 +41,15 @@ h1 {
   background-color: white;
   cursor: pointer;
   width: 100%;
+  box-sizing: border-box; /* ✅ 추가 */
 }
 
-/* ✅ 검색 입력창/버튼 */
 .search-row {
   margin-top: 30px;
   display: flex;
   justify-content: center;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -61,6 +57,7 @@ h1 {
   padding: 10px;
   font-size: 1em;
   width: clamp(250px, 30vw, 400px);
+  flex-shrink: 1;
 }
 
 .search-button {
@@ -69,9 +66,9 @@ h1 {
   border: 2px solid black;
   background: white;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
-/* ✅ 선택된 지역/날짜 표시 */
 .selected-info {
   margin-top: 20px;
   text-align: center;
@@ -81,7 +78,6 @@ h1 {
   white-space: pre-line;
 }
 
-/* ✅ 광고 카드 리스트 */
 .ad-card-list {
   display: flex;
   justify-content: center;
@@ -90,7 +86,6 @@ h1 {
   margin-top: 40px;
 }
 
-/* ✅ 카드 하나 */
 .ad-card {
   border: 2px solid black;
   width: 350px;
@@ -98,7 +93,6 @@ h1 {
   text-align: center;
 }
 
-/* ✅ 카드 이미지 영역 */
 .ad-image {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -112,14 +106,12 @@ h1 {
   display: block;
 }
 
-/* ✅ 카드 제목 */
 .ad-desc {
   border-top: 2px;
   padding-top: 6px;
   font-weight: bold;
 }
 
-/* ✅ 카드 상세 정보 */
 .ad-detail {
   font-size: 14px;
   margin-top: 10px;
@@ -133,7 +125,6 @@ h1 {
   height: 100%;
 }
 
-/* ✅ 페이징 */
 .pagination {
   text-align: center;
   margin-top: 60px;
@@ -156,7 +147,6 @@ h1 {
   text-decoration: underline;
 }
 
-/* ✅ 정렬 옵션 드롭다운 */
 .sort-options {
   display: flex;
   flex-direction: column;
@@ -167,7 +157,11 @@ h1 {
   padding: 10px;
   z-index: 100;
   position: absolute;
-  width: 100%;
+  top: 100%;
+  left: 0;
+  width: max-content;
+  min-width: 140px;
+  max-width: 100%;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 6px;
 }
@@ -185,8 +179,16 @@ h1 {
   background-color: #f2f2f2;
 }
 
-/* ✅ 숨김 처리 */
 .hidden {
   display: none;
 }
 
+@media (max-width: 768px) {
+  .filter-top-group {
+    gap: 16px;
+  }
+
+  .filter-group {
+    width: 140px;
+  }
+}
