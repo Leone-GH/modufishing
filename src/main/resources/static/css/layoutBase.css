@@ -3,7 +3,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  height: 100%;
   font-family: 'Pretendard', sans-serif;
   color: #333;
 }
@@ -15,9 +15,15 @@ html, body {
 .container {
   width: 100%;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   overflow-x: hidden;
   position: relative;
   background-color: white;
   padding: 0;
   margin: 0;
+}
+
+.page-wrapper {
+  flex: 1;
 }
