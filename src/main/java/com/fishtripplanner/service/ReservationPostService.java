@@ -250,4 +250,16 @@ public class ReservationPostService {
                             .build();
                 }).toList();
     }
+
+    public void deletePost(Long postId, Long ownerId) {
+        ReservationPost post = reservationPostRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 예약글이 존재하지 않음"));
+
+        if (!post.getOwner().getId().equals(ownerId)) {
+            throw new SecurityException("삭제 권한 없음");
+        }
+
+        reservationPostRepository.delete(post);
+    }
+
 }
