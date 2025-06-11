@@ -6,9 +6,8 @@
 
 <head>
   <title layout:fragment="title">예약글 관리</title>
-
   <th:block layout:fragment="add-css">
-    <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_manager.css}">
+    <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_manage.css}">
   </th:block>
 </head>
 
@@ -16,14 +15,13 @@
 <main layout:fragment="content" class="manage-page-container">
   <h1>내 예약글 관리</h1>
 
-  <table>
+  <table class="main-table">
     <thead>
     <tr>
       <th>제목</th>
       <th>유형</th>
       <th>지역</th>
       <th>작성일</th>
-      <th>예약수</th>
       <th></th>
     </tr>
     </thead>
@@ -33,7 +31,6 @@
       <td th:text="${post.type.getKorean()}">유형</td>
       <td th:text="${post.getFormattedRegionString()}">지역</td>
       <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">날짜</td>
-      <td th:text="${post.reservationOrders.size()}">0</td>
       <td>
         <button type="button" th:onclick="'toggleOrders(' + ${post.id} + ')'">상세 보기</button>
         <a th:href="@{'/reservation/edit/' + ${post.id}}">수정</a>
@@ -41,16 +38,18 @@
       </td>
     </tr>
 
-    <!-- 날짜별 예약자 리스트 카드형 출력 -->
+    <!-- 날짜별 예약자 리스트, 카드 형태로 감싸기 -->
     <tr th:each="post : ${posts}" th:id="'orders-' + ${post.id}" style="display: none;">
-      <td colspan="6" style="background:none; border:none;">
+      <td colspan="6" style="padding:0; border:none;">
         <div th:each="dateDto : ${availableDateMap[post.id]}" class="reservation-date-card">
           <div class="reservation-date-header">
             날짜: <span th:text="${dateDto.date}">2025-06-28</span>
             (<span th:text="${dateDto.time}">07:30~16:30</span>)<br/>
-            총 정원: <span th:text="${dateDto.capacity}">25</span> /
-            예약 인원: <span th:text="${dateDto.capacity - dateDto.remaining}">1</span> /
-            남은 정원: <span th:text="${dateDto.remaining}">24</span>
+            <span class="date-info">
+              총 정원: <b th:text="${dateDto.capacity}">25</b> /
+              예약 인원: <b th:text="${dateDto.capacity - dateDto.remaining}">1</b> /
+              남은 정원: <b th:text="${dateDto.remaining}">24</b>
+            </span>
           </div>
           <table class="inner-table">
             <thead>
@@ -69,7 +68,7 @@
               <td th:text="${order.paid ? '결제 완료' : '미결제'}">결제 완료</td>
             </tr>
             <tr th:if="${#lists.isEmpty(dateDto.orders)}">
-              <td colspan="4" class="empty-order">예약자가 없습니다.</td>
+              <td colspan="4" class="empty-orders">예약자가 없습니다.</td>
             </tr>
             </tbody>
           </table>
@@ -80,6 +79,7 @@
   </table>
 </main>
 
+<!-- JS -->
 <th:block layout:fragment="add-js">
   <script>
     function toggleOrders(postId) {
