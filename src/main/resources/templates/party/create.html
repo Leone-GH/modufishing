@@ -1,98 +1,98 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>파티 모집글 작성</title>
-  <link rel="stylesheet" th:href="@{/css/header.css}">
-  <link rel="stylesheet" th:href="@{/css/list.css}">
-  <link rel="stylesheet" th:href="@{/css/edit.css}">
-  <script th:src="@{/js/common.js}" defer></script>
   <link rel="stylesheet" href="/css/party-create.css">
-
-  <style>
-    *{
-      margin:0 auto;
-    }
-    #mapContextMenu {
-      position: absolute;
-      background: white;
-      border: 1px solid #333;
-      padding: 8px;
-      z-index: 9999;
-      display: none;
-      box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
-    }
-    #mapContextMenu button {
-      display: block;
-      width: 100px;
-      margin: 5px 0;
-      padding: 5px;
-      font-size: 14px;
-      text-align: center;
-      background: white;
-      border: 1px solid #333;
-      cursor: pointer;
-    }
-    #searchSuggestions {
-      background: white;
-      border: 1px solid #ccc;
-      z-index: 999;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    .suggestion {
-      padding: 5px;
-      cursor: pointer;
-    }
-    .suggestion:hover {
-      background: #eee;
-    }
-  </style>
+  <link rel="stylesheet" href="/css/header.css">
+  <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0b84a2179b2534016530526202844771&autoload=false&libraries=services"></script>
+  <script src="/js/marine.js"></script>
+  <script src="/js/party-create.js"></script>
 </head>
 <body>
-<div>
-  <Strong>닉네임 :</Strong>
-</div>
-<h1>정보입력</h1>
-<select name="triptype" id="triptype">
-  <option value="boat">선상낚시 </option>
-  <option value="rock">갯바위/방파제낚시</option>
-</select>
-<div><button type="button" th:action="connect2reservation">예약연동</button></div>
-<!-- 주소 검색창 -->
-<input type="text" id="addressSearch" placeholder="주소 검색 (2자 이상 입력)" autocomplete="off" />
-<div id="searchSuggestions"></div>
-<div id="searchModal" style="display:none; top:10%; left:50%; transform:translateX(-50%); background:white; padding:20px; border:1px solid #ccc; z-index:9999; max-height:400px; overflow:auto;"></div>
-<div class="container"style="display:flex">
-  <form id="partyForm" method="post" th:action="@{/party/saveRouteInfo}">
-  <label for="departure-date" id="lb4d" style="background-color: #007BFF;">출발일시 : <input type="datetime-local" id="departure-date" name="departure-date"></label>
-  <input type="text" id="departurePoint" name="departurePoint" readonly placeholder="출발지">
-  <input type="text" id="destination" name="destination" readonly placeholder="도착지">
-  <input type="text" id="waypoint" name="waypoint" readonly placeholder="경유지">
-  <div id="waypointInputs"></div>
-  <div id="routeInfo" style="margin: 20px auto; width: 90%; max-width: 600px; font-size: 1rem; background: #f8f9fa; border: 1px solid #ccc; padding: 15px; border-radius: 8px; display: none;">
-    <strong>📍 예상 소요 정보</strong><br>
-    <span id="durationText"></span><br>
-    <span id="tollText"></span>
-  </div>
-  <!-- 차량 검색창 -->
-  <div style="width: 90%; max-width: 600px; margin: 20px auto;">
-    <label for="carSearchInput">🚘 차량 검색:</label>
-    <input type="text" id="carSearchInput" placeholder="예: 볼보 XC60" autocomplete="off" />
-    <div id="carSuggestions" style="border: 1px solid #ccc; background: white; max-height: 200px; overflow-y: auto; display: none;"></div>
-  </div>
-  <!--연료비-->
-  <div id="fuelText" style="margin: 20px auto; width: 90%; max-width: 600px; font-size: 1rem; background: #f8f9fa; border: 1px solid #ccc; padding: 15px; border-radius: 8px;"></div>
-  <button type="submit">등록</button>
-</form>
-<div id="map" style="width:60%;height:800px;padding-right:50px;padding-left:50px;"></div>
-<div id="mapContextMenu"></div></div>
-<!-- marine info 출력 영역 -->
-<div id="marine-info-output">여기는 해양정보 렌더링</div>
+<div class="container">
+  <h1>파티 모집글 작성</h1>
 
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0b84a2179b2534016530526202844771&autoload=false&libraries=services"></script>
-<script th:src="@{/js/marine.js}"></script>
-<script th:src="@{/js/party-create.js}"></script>
+  <!-- info-card -->
+  <section class="info-card">
+    <div class="info-row"><span class="info-label">출발지</span><span id="departurePointView" class="info-value">-</span></div>
+    <div class="info-row"><span class="info-label">도착지</span><span id="destinationView" class="info-value">-</span></div>
+    <div class="info-row"><span class="info-label">경유지</span><span id="waypointView" class="info-value">-</span></div>
+    <div class="info-row"><span class="info-label">차량정보</span><span id="carInfoView" class="info-value">-</span></div>
+    <div class="info-row"><span class="info-label">연료비</span><span id="fuelInfoView" class="info-value">-</span></div>
+    <div class="info-row routeinfo-row" id="routeInfoCard" style="display:none;">
+      <span class="info-label">📍예상 소요</span>
+      <span>
+          <span id="durationText"></span>
+          <span id="tollText" style="margin-left:10px;"></span>
+        </span>
+    </div>
+  </section>
+
+  <!-- 지도 -->
+  <section>
+    <div id="map" class="map-section"></div>
+  </section>
+
+  <!-- 해양/날씨 예보 -->
+  <section id="marine-info-section">
+    <h2>해양/날씨 정보</h2>
+    <div id="marine-info-output">여기는 해양 정보 표시</div>
+  </section>
+
+  <!-- 입력폼 -->
+  <form id="partyForm" method="post" th:action="@{/party/saveRouteInfo}">
+    <div class="form-fields">
+      <div class="form-group">
+        <label for="userid">닉네임</label>
+        <input name="userid" th:value="${session.username}" readonly>
+      </div>
+      <div class="form-group">
+        <label for="title">제목</label>
+        <input type="text" name="title" id="title" maxlength="60" placeholder="모집글 제목을 입력하세요" required>
+      </div>
+      <div class="form-group">
+        <label for="triptype">여행 타입</label>
+        <select name="triptype" id="triptype">
+          <option value="boat">선상낚시</option>
+          <option value="rock">갯바위/방파제낚시</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="departure-date">출발일시</label>
+        <input type="datetime-local" id="departure-date" name="departure-date" required>
+      </div>
+      <div class="form-group">
+        <label for="addressSearch">지도 검색</label>
+        <input type="text" id="addressSearch" placeholder="장소를 검색하세요(2글자 이상)">
+        <div id="searchSuggestions"></div>
+      </div>
+      <div class="form-group">
+        <label for="carSearchInput">차량 검색</label>
+        <input type="text" id="carSearchInput" placeholder="예: 볼보 XC60" autocomplete="off">
+        <div id="carSuggestions"></div>
+      </div>
+      <div class="form-group">
+        <label for="spec">상세설명</label>
+        <textarea name="spec" id="spec" maxlength="300" placeholder="상세 설명을 입력하세요" rows="4"></textarea>
+      </div>
+    </div>
+
+    <!-- Hidden 입력(지도, 경유지 등) -->
+    <input type="hidden" id="departurePoint" name="departurePoint">
+    <input type="hidden" id="destination" name="destination">
+    <input type="hidden" id="waypoint" name="waypoint">
+    <div id="waypointInputs"></div>
+    <input type="hidden" name="departureLat">
+    <input type="hidden" name="departureLng">
+    <input type="hidden" name="destinationLat">
+    <input type="hidden" name="destinationLng">
+
+    <button type="submit" class="submit-btn">등록</button>
+  </form>
+</div>
+
+<div id="mapContextMenu"></div>
+<div id="searchModal" style="display:none;"></div>
 </body>
 </html>
-

@@ -166,6 +166,6 @@ window.renderFishingInfo = function (data, targetDate, arrivalTime, triptype) {
       document.getElementById("show-all-marine-info-btn").onclick = () => showMarineInfoModal(data);
     }, 50);
   }
-  document.getElementById("marineInfoJson").value = JSON.stringify(data); // 폼 전송 전에 저장
+
 
 };
