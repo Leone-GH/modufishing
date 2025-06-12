@@ -72,9 +72,9 @@ public class ReservationPost {
     )
     private List<FishTypeEntity> fishTypes;  // 예약글에 해당하는 어종 목록
 
-    @OneToMany(mappedBy = "reservationPost")
+    @OneToMany(mappedBy = "reservationPost", cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 20)
-    private List<ReservationPostAvailableDate> availableDates;  // 예약 글에 해당하는 예약 가능한 날짜들
+    private List<ReservationPostAvailableDate> availableDates = new ArrayList<>();  // 예약 글에 해당하는 예약 가능한 날짜들
 
     public String getFormattedRegionString() {
         if (regions == null || regions.isEmpty()) return "";
@@ -96,5 +96,12 @@ public class ReservationPost {
     private List<ReservationOrderEntity> reservationOrders = new ArrayList<>();
 
 
+    // 편의 메서드 추가: 예약글 작성 시 묶어서 초기화 가능
+    public void setRegionAndContentAndPriceAndCompany(List<RegionEntity> regions, String content, int price, String companyName) {
+        this.setRegions(regions);
+        this.setContent(content);
+        this.setPrice(price);
+        this.setCompanyName(companyName);
+    }
 
 }

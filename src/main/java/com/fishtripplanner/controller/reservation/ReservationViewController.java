@@ -1,11 +1,10 @@
 package com.fishtripplanner.controller.reservation;
 
-import com.fishtripplanner.api.reservation.ReservationService;
 import com.fishtripplanner.domain.reservation.ReservationPost;
 import com.fishtripplanner.domain.reservation.ReservationType;
 import com.fishtripplanner.dto.reservation.ReservationCardDto;
 import com.fishtripplanner.dto.reservation.ReservationDetailResponseDto;
-import com.fishtripplanner.repository.ReservationPostRepository;
+import com.fishtripplanner.service.ReservationQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,15 +18,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationViewController {
 
-    private final ReservationPostRepository reservationPostRepository;
-    private final ReservationService reservationService;
+    private final ReservationQueryService reservationQueryService;
 
     /**
      * ✅ 기본 예약 메인 페이지
      */
     @GetMapping("")
     public String reservationPage(Model model) {
-        List<ReservationPost> posts = reservationPostRepository.findAll();
+        List<ReservationPost> posts = reservationQueryService.findAllPosts();
         model.addAttribute("posts", posts);
         return "reservation";
     }
@@ -46,17 +44,14 @@ public class ReservationViewController {
             return "redirect:/error"; // 잘못된 타입 요청 시 에러 페이지로
         }
 
-        // ✅ enum 내부 getKorean() 사용 (매퍼 제거됨)
         model.addAttribute("title", enumType.getKorean());
-        model.addAttribute("type", type); // 페이징 링크 등에서 필요
+        model.addAttribute("type", type);
 
-        // ✅ 타입 필터링된 예약글 가져오기
-        List<ReservationPost> filteredPosts = reservationPostRepository.findByType(enumType);
+        List<ReservationPost> filteredPosts = reservationQueryService.findByType(enumType);
         List<ReservationCardDto> allCards = filteredPosts.stream()
                 .map(ReservationCardDto::from)
                 .toList();
 
-        // ✅ 페이징 처리
         int pageSize = 4;
         int start = page * pageSize;
         int end = Math.min(start + pageSize, allCards.size());
@@ -82,7 +77,7 @@ public class ReservationViewController {
      */
     @GetMapping("/detail/{id}")
     public String getReservationDetail(@PathVariable("id") Long id, Model model) {
-        ReservationDetailResponseDto dto = reservationService.getReservationDetail(id);
+        ReservationDetailResponseDto dto = reservationQueryService.getReservationDetail(id);
         model.addAttribute("reservation", dto);
         return "reservation_page/reservation_detail";
     }
@@ -95,11 +90,11 @@ public class ReservationViewController {
     @RequiredArgsConstructor
     public static class FilterApiController {
 
-        private final ReservationPostRepository repo;
+        private final ReservationQueryService reservationQueryService;
 
         @GetMapping("/regions")
         public List<String> getRegions() {
-            return repo.findAllRegionNames();
+            return reservationQueryService.getUsedRegionNames();
         }
     }
 }

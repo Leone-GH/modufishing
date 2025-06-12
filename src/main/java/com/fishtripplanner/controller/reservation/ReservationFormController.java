@@ -2,10 +2,9 @@ package com.fishtripplanner.controller.reservation;
 
 import com.fishtripplanner.dto.reservation.ReservationCreateRequestDto;
 import com.fishtripplanner.repository.BusinessInfoRepository;
-import com.fishtripplanner.repository.RegionRepository;
-import com.fishtripplanner.repository.FishTypeRepository;
 import com.fishtripplanner.security.CustomUserDetails;
 import com.fishtripplanner.service.ReservationPostService;
+import com.fishtripplanner.service.ReservationQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -19,16 +18,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ReservationFormController {
 
     private final ReservationPostService reservationPostService;
-    private final RegionRepository regionRepository;
-    private final FishTypeRepository fishTypeRepository;
+    private final ReservationQueryService reservationQueryService;
     private final BusinessInfoRepository businessInfoRepository;
 
     // ✅ 예약글 작성 폼 페이지 출력
     @GetMapping("/form")
     public String showForm(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         model.addAttribute("form", new ReservationCreateRequestDto());
-        model.addAttribute("regions", regionRepository.findAll());
-        model.addAttribute("fishTypes", fishTypeRepository.findAll());
+        model.addAttribute("regions", reservationQueryService.getAllRegions());
+        model.addAttribute("fishTypes", reservationQueryService.getAllFishTypes());
 
         Long userId = userDetails.getUser().getId();
         String companyName = businessInfoRepository.findCompanyNameByUserId(userId)
@@ -39,7 +37,6 @@ public class ReservationFormController {
 
         return "reservation_page/reservation_form";
     }
-
 
     // ✅ 예약글 작성 처리 후 메인으로 리디렉션 + 알림 메시지 전달
     @PostMapping("/new")

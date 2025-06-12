@@ -5,7 +5,7 @@ import com.fishtripplanner.domain.reservation.ReservationType;
 import com.fishtripplanner.dto.reservation.RegionDto;
 import com.fishtripplanner.dto.reservation.ReservationCardDto;
 import com.fishtripplanner.repository.RegionRepository;
-import com.fishtripplanner.service.ReservationPostService;
+import com.fishtripplanner.service.ReservationQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +20,7 @@ import java.util.List;
 public class ReservationFilterController {
 
     private final RegionRepository regionRepository;
-    private final ReservationPostService reservationPostService;
+    private final ReservationQueryService reservationQueryService;
 
     /**
      * ✅ 지역 계층 구조 조회
@@ -41,7 +41,7 @@ public class ReservationFilterController {
      */
     @GetMapping("/fish-types")
     public List<String> getFishTypes() {
-        return reservationPostService.getFishTypeNames();
+        return reservationQueryService.getFishTypeNames();
     }
 
     /**
@@ -59,25 +59,16 @@ public class ReservationFilterController {
             @RequestParam(value = "sort", defaultValue = "latest") String sortKey,
             Pageable pageable
     ) {
-        // 🔹 문자열 → enum으로 변환
         ReservationType enumType = ReservationType.valueOf(type.toUpperCase());
 
-        // 🔹 날짜 파싱
         List<LocalDate> parsedDates = (dateList != null)
                 ? dateList.stream().map(LocalDate::parse).toList()
                 : null;
 
-        // 🔹 빈 값 null-safe 처리
-        List<Long> validRegionIds = (regionIds == null || regionIds.isEmpty()) ? null : regionIds;
-        List<String> validFishTypes = (fishTypes == null || fishTypes.isEmpty()) ? null : fishTypes;
-        String validKeyword = (keyword == null || keyword.isBlank()) ? null : keyword;
-
-        // 🔹 서비스 호출
-        Page<ReservationPost> page = reservationPostService.filterPosts(
-                enumType, validRegionIds, parsedDates, validFishTypes, validKeyword, sortKey, pageable
+        Page<ReservationPost> page = reservationQueryService.filterPosts(
+                enumType, regionIds, parsedDates, fishTypes, keyword, sortKey, pageable
         );
 
-        // 🔹 DTO 변환 후 반환
         return page.stream()
                 .map(ReservationCardDto::from)
                 .toList();
@@ -89,6 +80,6 @@ public class ReservationFilterController {
      */
     @GetMapping("/regions/names")
     public List<String> getUsedRegionNames() {
-        return reservationPostService.getUsedRegionNames();
+        return reservationQueryService.getUsedRegionNames();
     }
 }

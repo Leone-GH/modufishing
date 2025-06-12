@@ -68,12 +68,13 @@
                      value="1"
                      style="width: 60px; margin-right: 10px;" />
 
-              <button class="reserve-button"
+              <button type="button" class="reserve-button"
                       th:data-post-id="${reservation.id}"
-                      th:data-date="${date.rawDate}"
+                      th:data-date="${date.date}"
                       th:data-remaining="${date.remaining}">
                 예약하기
               </button>
+
             </div>
           </div>
         </div>
