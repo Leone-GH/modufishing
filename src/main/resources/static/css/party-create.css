@@ -165,3 +165,33 @@ h1 {
   background: #f2f6fa;
   color: #22549b;
 }
+#mapContextMenu {
+  position: absolute;
+  z-index: 1000;
+  background: #fff;
+  border: 1.5px solid #b3c9e6;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 3px 16px rgba(60,80,180,.12);
+  display: none;
+}
+
+#mapContextMenu button {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #22549b;
+  font-size: 1.04rem;
+  padding: 8px 0;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.16s;
+  border-radius: 6px;
+}
+#mapContextMenu button:hover {
+  background: #eef3fb;
+}
+.container{
+    position:relative;
+}

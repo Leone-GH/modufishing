@@ -31,23 +31,10 @@ public class PartyController {
     @PostMapping("/saveRouteInfo")
     public String saveRouteInfo(@ModelAttribute PartyCreateRequest request, HttpSession session) {
         session.setAttribute("partyTemp", request);
-        return "redirect:/party/createDetail";
+        return "redirect:/party/saveDetail";
     }
 
-    // 2차 폼 GET: 세션에서 데이터 읽어서 뷰에 전달
-    @GetMapping("/createDetail")
-    public String showDetailForm(HttpSession session, Model model) {
-        PartyCreateRequest routeInfo = (PartyCreateRequest) session.getAttribute("partyTemp");
-        if (routeInfo == null) return "redirect:/party/create";
-        model.addAttribute("routeInfo", routeInfo);
 
-        // marineInfoJson → HTML 변환 (간단 요약)
-        if (routeInfo.getMarineInfoJson() != null) {
-            String html = "<pre style='font-size:0.9em;white-space:pre-wrap;'>" + routeInfo.getMarineInfoJson() + "</pre>";
-            model.addAttribute("marineInfoHtml", html);
-        }
-        return "party/create-detail"; // 아래 html
-    }
 
     // 2차 폼 POST: 입력값 합쳐서 최종 저장
     @PostMapping("/saveDetail")
