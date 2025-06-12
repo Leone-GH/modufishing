@@ -13,72 +13,74 @@
 <div class="container">
   <h1>파티 모집글 작성</h1>
 
-  <!-- info-card -->
-  <section class="info-card">
-    <div class="info-row"><span class="info-label">출발지</span><span id="departurePointView" class="info-value">-</span></div>
-    <div class="info-row"><span class="info-label">도착지</span><span id="destinationView" class="info-value">-</span></div>
-    <div class="info-row"><span class="info-label">경유지</span><span id="waypointView" class="info-value">-</span></div>
-    <div class="info-row"><span class="info-label">차량정보</span><span id="carInfoView" class="info-value">-</span></div>
-    <div class="info-row"><span class="info-label">연료비</span><span id="fuelInfoView" class="info-value">-</span></div>
-    <div class="info-row routeinfo-row" id="routeInfoCard" style="display:none;">
-      <span class="info-label">📍예상 소요</span>
-      <span>
-          <span id="durationText"></span>
-          <span id="tollText" style="margin-left:10px;"></span>
-        </span>
-    </div>
-  </section>
-
-  <!-- 지도 -->
-  <section>
-    <div id="map" class="map-section"></div>
-  </section>
-
-  <!-- 해양/날씨 예보 -->
-  <section id="marine-info-section">
-    <h2>해양/날씨 정보</h2>
-    <div id="marine-info-output">여기는 해양 정보 표시</div>
-  </section>
-
-  <!-- 입력폼 -->
   <form id="partyForm" method="post" th:action="@{/party/saveRouteInfo}">
     <div class="form-fields">
-      <div class="form-group">
-        <label for="userid">닉네임</label>
-        <input name="userid" th:value="${session.username}" readonly>
-      </div>
-      <div class="form-group">
-        <label for="title">제목</label>
-        <input type="text" name="title" id="title" maxlength="60" placeholder="모집글 제목을 입력하세요" required>
-      </div>
-      <div class="form-group">
-        <label for="triptype">여행 타입</label>
-        <select name="triptype" id="triptype">
-          <option value="boat">선상낚시</option>
-          <option value="rock">갯바위/방파제낚시</option>
-        </select>
-      </div>
+
+      <!-- 출발일시 -->
       <div class="form-group">
         <label for="departure-date">출발일시</label>
         <input type="datetime-local" id="departure-date" name="departure-date" required>
       </div>
+
+      <!-- 여행 타입 -->
       <div class="form-group">
-        <label for="addressSearch">지도 검색</label>
-        <input type="text" id="addressSearch" placeholder="장소를 검색하세요(2글자 이상)">
-        <div id="searchSuggestions"></div>
+        <label for="triptype">여행 타입</label>
+        <select name="triptype" id="triptype" required>
+          <option value="boat">선상낚시</option>
+          <option value="rock">갯바위/방파제낚시</option>
+        </select>
       </div>
+
+      <!-- 차량 검색 -->
       <div class="form-group">
         <label for="carSearchInput">차량 검색</label>
         <input type="text" id="carSearchInput" placeholder="예: 볼보 XC60" autocomplete="off">
         <div id="carSuggestions"></div>
       </div>
-      <div class="form-group">
-        <label for="spec">상세설명</label>
-        <textarea name="spec" id="spec" maxlength="300" placeholder="상세 설명을 입력하세요" rows="4"></textarea>
-      </div>
     </div>
 
-    <!-- Hidden 입력(지도, 경유지 등) -->
+    <!-- 지도(카드와 분리) -->
+    <section>
+      <div id="map" class="map-section"></div>
+      <div id="mapContextMenu"></div>
+    </section>
+
+    <!-- 지도 밑에 주소검색 -->
+    <div class="form-group">
+      <label for="addressSearch">지도 검색</label>
+      <input type="text" id="addressSearch" placeholder="장소를 검색하세요(2글자 이상)">
+      <div id="searchSuggestions"></div>
+    </div>
+
+    <!-- info-card: 실시간 결과/요약 미리보기 -->
+    <section class="info-card" style="margin-top:20px;">
+      <div class="info-row"><span class="info-label">출발지</span><span id="departurePointView" class="info-value">-</span></div>
+      <div class="info-row"><span class="info-label">도착지</span><span id="destinationView" class="info-value">-</span></div>
+      <div class="info-row"><span class="info-label">경유지</span><span id="waypointView" class="info-value">-</span></div>
+      <div class="info-row"><span class="info-label">차량정보</span><span id="carInfoView" class="info-value">-</span></div>
+      <div class="info-row"><span class="info-label">연료비</span><span id="fuelInfoView" class="info-value">-</span></div>
+      <div class="info-row routeinfo-row" id="routeInfoCard" style="display:none;">
+        <span class="info-label">📍예상 소요</span>
+        <span>
+            <span id="durationText"></span>
+            <span id="tollText" style="margin-left:10px;"></span>
+          </span>
+      </div>
+    </section>
+
+    <!-- 해양/날씨 예보 -->
+    <section id="marine-info-section">
+      <h2>해양/날씨 정보</h2>
+      <div id="marine-info-output">여기는 해양 정보 표시</div>
+    </section>
+
+    <!-- 상세설명 -->
+    <div class="form-group">
+      <label for="spec">상세설명</label>
+      <textarea name="spec" id="spec" maxlength="300" placeholder="상세 설명을 입력하세요" rows="4"></textarea>
+    </div>
+
+    <!-- Hidden 입력(지도, 경유지, 연료비, 루트 등) -->
     <input type="hidden" id="departurePoint" name="departurePoint">
     <input type="hidden" id="destination" name="destination">
     <input type="hidden" id="waypoint" name="waypoint">
@@ -87,12 +89,14 @@
     <input type="hidden" name="departureLng">
     <input type="hidden" name="destinationLat">
     <input type="hidden" name="destinationLng">
+    <input type="hidden" name="fuelCostEstimate" id="fuelCostEstimate">
+    <input type="hidden" name="routePathJson" id="routePathJson">
+    <input type="hidden" name="userid" th:value="${session.username}">
 
     <button type="submit" class="submit-btn">등록</button>
   </form>
 </div>
 
-<div id="mapContextMenu"></div>
 <div id="searchModal" style="display:none;"></div>
 </body>
 </html>

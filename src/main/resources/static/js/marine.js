@@ -161,7 +161,7 @@ window.renderFishingInfo = function (data, targetDate, arrivalTime, triptype) {
   }
   // 전체보기 버튼
   if (data.recommendedTimes && data.recommendedTimes.length > 1) {
-    c.innerHTML += `<button id="show-all-marine-info-btn" style="margin-top:10px;">전체 해양예보 보기(1주일)</button>`;
+    c.innerHTML += `<button id="show-all-marine-info-btn" style="margin-top:10px;" type="button">전체 해양예보 보기(1주일)</button>`;
     setTimeout(() => {
       document.getElementById("show-all-marine-info-btn").onclick = () => showMarineInfoModal(data);
     }, 50);

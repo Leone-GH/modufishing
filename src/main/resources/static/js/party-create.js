@@ -3,6 +3,7 @@ let selectedVehicle = null;
 let departure = null, destination = null;
 let destinationLat = null, destinationLng = null;
 let waypoints = [];
+let tempMarker = null;
 
 window.onload = function () {
   kakao.maps.load(() => {
@@ -13,9 +14,8 @@ window.onload = function () {
     const geocoder = new kakao.maps.services.Geocoder();
     const places = new kakao.maps.services.Places();
     let polyline = null;
-    let tempMarker = null;
 
-    // ========== 주소 검색 ==========
+    // ===== 주소 검색 =====
     const searchBox = document.getElementById('addressSearch');
     const suggestions = document.getElementById('searchSuggestions');
     let debounceTimer;
@@ -46,82 +46,98 @@ window.onload = function () {
       }, 300);
     });
 
-    // ========== 지도 우클릭 마커 & 컨텍스트 메뉴 ==========
+    // ===== 지도 우클릭 마커/메뉴 =====
     kakao.maps.event.addListener(map, 'rightclick', function(mouseEvent) {
       const latlng = mouseEvent.latLng;
-      const containerRect = document.getElementById('map').getBoundingClientRect();
-      const menuX = containerRect.left + mouseEvent.point.x;
-      const menuY = containerRect.top + mouseEvent.point.y;
+      const mapDiv = document.getElementById('map');
+      const rect = mapDiv.getBoundingClientRect();
+      let menuX, menuY;
+      if (mouseEvent.point) {
+        menuX = rect.left + mouseEvent.point.x;
+        menuY = rect.top + mouseEvent.point.y;
+      } else if (mouseEvent.offsetX !== undefined) {
+        menuX = rect.left + mouseEvent.offsetX;
+        menuY = rect.top + mouseEvent.offsetY;
+      } else {
+        menuX = rect.left + rect.width / 2;
+        menuY = rect.top + rect.height / 2;
+      }
 
       if (tempMarker) tempMarker.setMap(null);
       tempMarker = new kakao.maps.Marker({ position: latlng, map });
 
       const menu = document.getElementById('mapContextMenu');
-      menu.innerHTML = `
-        <button onclick="selectPoint('departure')">출발지</button>
-        <button onclick="selectPoint('waypoint')">경유지</button>
-        <button onclick="selectPoint('destination')">도착지</button>
-      `;
+      menu.innerHTML = '';
+      [
+        { type: 'departure', label: '출발지' },
+        { type: 'waypoint', label: '경유지' },
+        { type: 'destination', label: '도착지' }
+      ].forEach(({ type, label }) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.type = "button"; // 이 라인 추가!!!
+        btn.onclick = function() {
+          if (tempMarker) tempMarker.setMap(null);
+          tempMarker = null;
+          menu.style.display = 'none';
+          if (type === 'departure') {
+            if (departure) departure.setMap(null);
+            departure = new kakao.maps.Marker({ position: latlng, map });
+            geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (result, status) => {
+              if (status === kakao.maps.services.Status.OK) {
+                document.getElementById('departurePoint').value = result[0].address.address_name;
+                document.querySelector('input[name="departureLat"]').value = latlng.getLat();
+                document.querySelector('input[name="departureLng"]').value = latlng.getLng();
+                tryAutoFetchRoute();
+                updateInfoCard();
+              }
+            });
+          } else if (type === 'destination') {
+            if (destination) destination.setMap(null);
+            destination = new kakao.maps.Marker({ position: latlng, map });
+            destinationLat = latlng.getLat();
+            destinationLng = latlng.getLng();
+            geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (result, status) => {
+              if (status === kakao.maps.services.Status.OK) {
+                document.getElementById('destination').value = result[0].address.address_name;
+                document.querySelector('input[name="destinationLat"]').value = latlng.getLat();
+                document.querySelector('input[name="destinationLng"]').value = latlng.getLng();
+                tryAutoFetchRoute();
+                updateInfoCard();
+              }
+            });
+          } else if (type === 'waypoint') {
+            const marker = new kakao.maps.Marker({ position: latlng, map });
+            geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (result, status) => {
+              if (status === kakao.maps.services.Status.OK) {
+                document.getElementById('waypoint').value = result[0].address.address_name;
+                updateInfoCard();
+              }
+            });
+            waypoints.push(marker);
+            kakao.maps.event.addListener(marker, 'click', () => {
+              if (confirm('이 마커를 삭제할까요?')) {
+                marker.setMap(null);
+                waypoints = waypoints.filter(m => m !== marker);
+                tryAutoFetchRoute();
+                updateInfoCard();
+              }
+            });
+            tryAutoFetchRoute();
+            updateInfoCard();
+          }
+        };
+        menu.appendChild(btn);
+      });
       menu.style.left = `${menuX}px`;
       menu.style.top = `${menuY}px`;
       menu.style.display = 'block';
-
-      window.selectPoint = function(type) {
-        const position = tempMarker.getPosition();
-        tempMarker.setMap(null);
-        tempMarker = null;
-        menu.style.display = 'none';
-
-        if (type === 'departure') {
-          if (departure) departure.setMap(null);
-          departure = new kakao.maps.Marker({ position, map });
-          geocoder.coord2Address(position.getLng(), position.getLat(), (result, status) => {
-            if (status === kakao.maps.services.Status.OK) {
-              document.getElementById('departurePoint').value = result[0].address.address_name;
-              document.querySelector('input[name="departureLat"]').value = position.getLat();
-              document.querySelector('input[name="departureLng"]').value = position.getLng();
-              tryAutoFetchRoute();
-              updateInfoCard();
-            }
-          });
-        } else if (type === 'destination') {
-          if (destination) destination.setMap(null);
-          destination = new kakao.maps.Marker({ position, map });
-          destinationLat = position.getLat();
-          destinationLng = position.getLng();
-          geocoder.coord2Address(position.getLng(), position.getLat(), (result, status) => {
-            if (status === kakao.maps.services.Status.OK) {
-              document.getElementById('destination').value = result[0].address.address_name;
-              document.querySelector('input[name="destinationLat"]').value = position.getLat();
-              document.querySelector('input[name="destinationLng"]').value = position.getLng();
-              tryAutoFetchRoute();
-              updateInfoCard();
-            }
-          });
-        } else if (type === 'waypoint') {
-          const marker = new kakao.maps.Marker({ position, map });
-          geocoder.coord2Address(position.getLng(), position.getLat(), (result, status) => {
-            if (status === kakao.maps.services.Status.OK) {
-              document.getElementById('waypoint').value = result[0].address.address_name;
-              updateInfoCard();
-            }
-          });
-          waypoints.push(marker);
-          kakao.maps.event.addListener(marker, 'click', () => {
-            if (confirm('이 마커를 삭제할까요?')) {
-              marker.setMap(null);
-              waypoints = waypoints.filter(m => m !== marker);
-              tryAutoFetchRoute();
-              updateInfoCard();
-            }
-          });
-          tryAutoFetchRoute();
-          updateInfoCard();
-        }
-      };
+    });
+    kakao.maps.event.addListener(map, 'click', function() {
+      document.getElementById('mapContextMenu').style.display = 'none';
     });
 
-    // ========== 경로/예상정보/해양API 연동 ==========
+    // ====== 경로, 해양정보, 연료비, 경로 데이터 Hidden 세팅 ======
     function tryAutoFetchRoute() {
       if (departure && destination) {
         fetch(`/api/route?startX=${departure.getPosition().getLng()}&startY=${departure.getPosition().getLat()}&endX=${destination.getPosition().getLng()}&endY=${destination.getPosition().getLat()}${waypoints.length ? '&waypoints=' + waypoints.map(m => m.getPosition().getLng() + ',' + m.getPosition().getLat()).join('_') : ''}`)
@@ -139,6 +155,10 @@ window.onload = function () {
               strokeStyle: 'solid'
             });
             polyline.setMap(map);
+
+            // 경로 좌표 hidden에 저장
+            document.getElementById('routePathJson').value =
+              JSON.stringify(route.path.map(p => ({ lat: p[1], lng: p[0] })));
 
             // 예상 시간, 톨비
             const minutes = Math.round(data.duration / 60);
@@ -165,11 +185,13 @@ window.onload = function () {
             if (selectedVehicle) {
               calculateFuelCost(routeData, selectedVehicle).then(result => {
                 if (result) {
-                  document.getElementById("fuelText").innerHTML =
+                  document.getElementById("fuelInfoView").innerHTML =
                     `🚘 ${document.getElementById("carSearchInput").value}<br>` +
                     `연비: ${selectedVehicle.cityEff}km/L(도심), ${selectedVehicle.highwayEff}km/L(고속) / 연료: ${selectedVehicle.fuelType}<br>` +
                     `<br>예상 사용: ${result.fuelUsed}L / 단가: ${result.fuelPrice.toLocaleString()}원/L<br>` +
                     `<strong>예상 연료비: ${result.fuelCost.toLocaleString()}원</strong>`;
+                  // hidden 필드로도 전송
+                  document.getElementById('fuelCostEstimate').value = result.fuelCost;
                   updateInfoCard();
                 }
               });
@@ -178,7 +200,7 @@ window.onload = function () {
       }
     }
 
-    // ========== 차량 검색 ==========
+    // ===== 차량 검색 =====
     const carInput = document.getElementById("carSearchInput");
     const suggestionBox = document.getElementById("carSuggestions");
     let carDebounce;
@@ -216,24 +238,23 @@ window.onload = function () {
             highwayEff: data.highwayEff,
             fuelType: data.fuelType
           };
-          document.getElementById("fuelText").innerHTML =
-            `🚘 ${modelName}<br>연비: ${data.cityEff}km/L(도심), ${data.highwayEff}km/L(고속) / 연료: ${data.fuelType}`;
           if (routeData) {
             calculateFuelCost(routeData, selectedVehicle).then(result => {
               if (result) {
-                document.getElementById("fuelText").innerHTML +=
-                  `<br><br>예상 사용: ${result.fuelUsed}L / 단가: ${result.fuelPrice.toLocaleString()}원/L<br>` +
+                document.getElementById("fuelInfoView").innerHTML =
+                  `🚘 ${modelName}<br>연비: ${data.cityEff}km/L(도심), ${data.highwayEff}km/L(고속) / 연료: ${data.fuelType}<br>` +
+                  `<br>예상 사용: ${result.fuelUsed}L / 단가: ${result.fuelPrice.toLocaleString()}원/L<br>` +
                   `<strong>예상 연료비: ${result.fuelCost.toLocaleString()}원</strong>`;
+                document.getElementById('fuelCostEstimate').value = result.fuelCost;
+                updateInfoCard();
               }
-              updateInfoCard();
             });
-          } else {
-            updateInfoCard();
           }
+          updateInfoCard();
         });
     }
 
-    // ========== 카드뷰 실시간 갱신 ==========
+    // ===== info-card 실시간 갱신 =====
     function updateInfoCard() {
       document.getElementById('departurePointView').textContent =
         document.getElementById('departurePoint').value || '-';
@@ -244,7 +265,9 @@ window.onload = function () {
       document.getElementById('carInfoView').textContent =
         carInput.value || '-';
       document.getElementById('fuelInfoView').textContent =
-        document.getElementById('fuelText')?.textContent?.replace(/\s+/g, ' ').trim() || '-';
+        document.getElementById('fuelCostEstimate').value
+          ? `예상 연료비: ${parseInt(document.getElementById('fuelCostEstimate').value).toLocaleString()}원`
+          : '-';
       // 예상 소요정보
       const dur = document.getElementById('durationText').textContent;
       const toll = document.getElementById('tollText').textContent;
@@ -258,7 +281,7 @@ window.onload = function () {
       }
     }
 
-    // ======= 폼 제출(경유지 등 hidden input 값 세팅) =======
+    // ===== 폼 제출: 경유지/좌표/연료비/경로path 저장 =====
     document.getElementById('partyForm').addEventListener('submit', () => {
       const container = document.getElementById('waypointInputs');
       container.innerHTML = '';
@@ -279,9 +302,10 @@ window.onload = function () {
         document.querySelector('input[name="destinationLat"]').value = destination.getPosition().getLat();
         document.querySelector('input[name="destinationLng"]').value = destination.getPosition().getLng();
       }
+      // 연료비, 경로 데이터는 이미 hidden에 할당됨
     });
 
-    // ====== 입력값 바뀔 때마다 카드 갱신 ======
+    // ====== 입력값 바뀔 때마다 info-card 갱신 ======
     ['departurePoint', 'destination', 'waypoint'].forEach(id => {
       document.getElementById(id).addEventListener('change', updateInfoCard);
     });
@@ -290,27 +314,50 @@ window.onload = function () {
   });
 }
 
-// ======= 해양정보 및 연료비 계산은 기존 함수 활용 =======
+// 해양 API 호출
 function fetchMarineInfo(destinationLat, destinationLng, arrivalDate, arrivalTime, triptype) {
-  // ... 기존과 동일
+  if (typeof destinationLat !== "number" || typeof destinationLng !== "number") {
+    console.warn("marineInfo 좌표값이 잘못됨:", destinationLat, destinationLng);
+    return;
+  }
   fetch(`/api/marine?lat=${destinationLat}&lon=${destinationLng}&departureDate=${encodeURIComponent(arrivalDate)}&arrivalTime=${encodeURIComponent(arrivalTime)}`)
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error("서버 오류: " + res.statusText);
+      return res.json();
+    })
     .then(data => {
-      window.renderFishingInfo(data, arrivalDate, arrivalTime, triptype);
+      renderFishingInfo(data, arrivalDate, arrivalTime, triptype); // 4개 인자 필수!
+    })
+    .catch(e => {
+      alert("해양 정보를 불러올 수 없습니다.");
     });
 }
 
+// 연료 단가 비동기로 받아서 유류비 계산
 async function calculateFuelCost(routeData, vehicleData) {
   const distanceKm = routeData.distance / 1000;
   const cityEff = vehicleData.cityEff;
   const highwayEff = vehicleData.highwayEff;
   const fuelType = vehicleData.fuelType;
-  const fuelPrices = await fetch("/api/fuel-price").then(res => res.json()).catch(() => null);
-  if (!fuelPrices || !fuelPrices[fuelType]) return null;
+
+  // 최신 유가 정보 fetch
+  const fuelPrices = await fetch("/api/fuel-price")
+    .then(res => res.json())
+    .catch(() => {
+      alert("유가 정보를 불러올 수 없습니다.");
+      return null;
+    });
+
+  if (!fuelPrices || !fuelPrices[fuelType]) {
+    alert(`${fuelType}에 대한 유가 정보가 없습니다.`);
+    return;
+  }
+
   const fuelPrice = fuelPrices[fuelType];
   const weightedEff = routeData.highwayRatio * highwayEff + routeData.generalRatio * cityEff;
   const usedFuel = distanceKm / weightedEff;
   const fuelCost = Math.round(usedFuel * fuelPrice);
+
   return {
     fuelUsed: usedFuel.toFixed(2),
     fuelCost: fuelCost,
@@ -318,4 +365,3 @@ async function calculateFuelCost(routeData, vehicleData) {
     fuelPrice: fuelPrice
   };
 }
-

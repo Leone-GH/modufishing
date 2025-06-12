@@ -66,8 +66,3 @@ server:
   output:
     ansi:
       enabled: always
-
-api:
-  fishing-index-key: r5iO3DlkKWJOveWMNt22HQ==
-
-
