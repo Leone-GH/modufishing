@@ -47,4 +47,5 @@ public class ReservationPostAvailableDate {
      */
     @Column(name = "time")
     private String time;
+
 }

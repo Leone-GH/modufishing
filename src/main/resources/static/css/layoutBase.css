@@ -1,6 +1,7 @@
-/* LayoutBase.css — 모든 페이지에서 공통으로 적용될 기본 구조 */
+/* 공통 레이아웃 스타일 */
 
 html, body {
+  height: 100%; /* 핵심: 전체 높이 100%로 고정 */
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -13,11 +14,14 @@ html, body {
 }
 
 .container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* 전체 화면 기준 */
   width: 100%;
-  min-height: 100vh;
   overflow-x: hidden;
-  position: relative;
   background-color: white;
-  padding: 0;
-  margin: 0;
+}
+
+.page-wrapper {
+  flex: 1; /* 핵심: footer를 밀어내는 역할 */
 }

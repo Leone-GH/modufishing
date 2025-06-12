@@ -20,7 +20,24 @@ fetch("/api/regions/hierarchy")
 window.addEventListener("DOMContentLoaded", () => {
   initAllModals();
   bindCurrencyInputField();
-  bindMergedTimeBeforeSubmit(); // 폼 제출 시 시간/날짜/정원 데이터 합쳐서 hidden 필드로 만들어줌
+  bindMergedTimeBeforeSubmit(); // 폼 제출 시 날짜+시간+정원 -> hidden 필드로 병합
+
+  // ✅ [🎯 수정폼 전용: 기존 예약 날짜 데이터 초기 세팅]
+  const existingJsonEl = document.getElementById("existingDatesJson");
+  if (existingJsonEl) {
+    const rawDates = JSON.parse(existingJsonEl.value);
+    const parsedDates = rawDates.map(d => {
+      const [start, end] = d.time.split("~").map(s => s.trim());
+      return {
+        date: d.availableDate,
+        start: start,
+        end: end,
+        capacity: d.capacity
+      };
+    });
+    ModalState.setDates(parsedDates);   // 상태에 넣고
+    updateDateLabel();                  // UI 그려줌
+  }
 });
 
 // ✅ [3] 모달 초기화
@@ -96,17 +113,17 @@ function updateDateLabel() {
     wrapper.className = "date-entry";
 
     wrapper.innerHTML = `
-      <span class="date-label">${entry.date}</span> <!-- ✅ 수정: 날짜에 클래스 추가 -->
-      <input type="text" class="timepicker start" name="startTimes[${idx}]" placeholder="시작 시간" required />
-      <input type="text" class="timepicker end" name="endTimes[${idx}]" placeholder="종료 시간" required />
-      <input type="number" class="capacity" name="capacities[${idx}]" placeholder="정원" min="1" required />
+      <span class="date-label">${entry.date}</span>
+      <input type="text" class="timepicker start" name="startTimes[${idx}]" placeholder="시작 시간" value="${entry.start || ''}" required />
+      <input type="text" class="timepicker end" name="endTimes[${idx}]" placeholder="종료 시간" value="${entry.end || ''}" required />
+      <input type="number" class="capacity" name="capacities[${idx}]" placeholder="정원" min="1" value="${entry.capacity || ''}" required />
       <button type="button" class="remove-date" data-date="${entry.date}">&times;</button>
     `;
 
     container.appendChild(wrapper);
   });
 
-  // ✅ flatpickr 초기화
+  // ✅ 시간 입력 필드에 flatpickr 바인딩
   container.querySelectorAll(".timepicker").forEach(el => {
     flatpickr(el, {
       enableTime: true,
@@ -117,7 +134,7 @@ function updateDateLabel() {
     });
   });
 
-  // ✅ 날짜 삭제 버튼 처리
+  // ✅ 삭제 버튼 이벤트 바인딩
   container.querySelectorAll(".remove-date").forEach(btn => {
     btn.addEventListener("click", () => {
       const dateToRemove = btn.getAttribute("data-date");
@@ -127,7 +144,7 @@ function updateDateLabel() {
   });
 }
 
-// ✅ [7] 가격 ₩ 포맷 처리
+// ✅ [7] 가격 필드 ₩ 포맷 처리
 function formatCurrencyInput(value) {
   const number = Number(value.replace(/[^\d]/g, ''));
   if (isNaN(number)) return '';
@@ -152,9 +169,10 @@ function bindCurrencyInputField() {
   hidden.value = initRaw;
 }
 
-// ✅ [8] 시작/종료 시간 병합해서 서버로 전송될 hidden input 생성
+// ✅ [8] 날짜/시간/정원 -> 서버 전송용 hidden input 생성
 function bindMergedTimeBeforeSubmit() {
-  const form = document.getElementById("reservationForm"); // ✅ 이걸로 수정
+  const form = document.getElementById("reservationForm") || document.getElementById("reservationEditForm"); // ✅ 두 폼 다 지원
+
   if (!form) return;
 
   form.addEventListener("submit", () => {
@@ -165,9 +183,6 @@ function bindMergedTimeBeforeSubmit() {
       const start = entry.querySelector(".timepicker.start")?.value || "";
       const end = entry.querySelector(".timepicker.end")?.value || "";
       const capacity = entry.querySelector(".capacity")?.value || "";
-
-      // ✅ 콘솔 확인
-      console.log(`📅 ${date} - 🕐 ${start}~${end}, 👤 ${capacity}`);
 
       const dateInput = document.createElement("input");
       dateInput.type = "hidden";
@@ -190,4 +205,4 @@ function bindMergedTimeBeforeSubmit() {
   });
 }
 
-  window.ModalState = ModalState;
+window.ModalState = ModalState;

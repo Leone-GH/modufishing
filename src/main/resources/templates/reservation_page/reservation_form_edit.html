@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>예약글 수정</title>
+
+  <!-- ✅ 페이지 전용 CSS -->
+  <th:block layout:fragment="add-css">
+    <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_form.css}">
+    <link rel="stylesheet" th:href="@{/css/css_reservation/reservation_modals.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  </th:block>
+</head>
+
+<body>
+<main layout:fragment="content" class="reservation-form-container">
+  <h1>예약글 수정</h1>
+
+  <form id="reservationEditForm"
+        th:action="@{'/reservation/update/' + ${reservationPost.id}}"
+        method="post"
+        enctype="multipart/form-data">
+
+    <!-- 제목 -->
+    <div class="form-group">
+      <label for="title">제목</label>
+      <input type="text" id="title" name="title" th:value="${reservationPost.title}" required>
+    </div>
+
+    <!-- 예약 타입 -->
+    <div class="form-group">
+      <label for="type">예약 타입</label>
+      <select id="type" name="type" required>
+        <option value="">선택하세요</option>
+        <option value="BOAT" th:selected="${reservationPost.type.name() == 'BOAT'}">선상낚시</option>
+        <option value="ROCK" th:selected="${reservationPost.type.name() == 'ROCK'}">갯바위</option>
+        <option value="FLOAT" th:selected="${reservationPost.type.name() == 'FLOAT'}">좌대</option>
+        <option value="ISLAND" th:selected="${reservationPost.type.name() == 'ISLAND'}">섬</option>
+        <option value="STAY" th:selected="${reservationPost.type.name() == 'STAY'}">숙박</option>
+      </select>
+    </div>
+
+    <!-- 지역 선택 -->
+    <div class="form-group">
+      <label for="regionBtn">지역</label>
+      <button type="button" id="regionBtn">지역 선택</button>
+      <div id="selectedRegionText" class="selection-result">
+        선택 지역:
+        <span th:text="${#strings.listJoin(regionNames, ' / ')}">-</span>
+      </div>
+      <div id="regionIdsInput"></div>
+    </div>
+
+    <!-- 어종 선택 -->
+    <div class="form-group">
+      <label for="fishBtn">어종</label>
+      <button type="button" id="fishBtn">어종 선택</button>
+      <div id="selectedFishText" class="selection-result">
+        선택 어종:
+        <span th:text="${#strings.listJoin(fishNames, ' / ')}">-</span>
+      </div>
+      <div id="fishTypeInputGroup"></div>
+    </div>
+
+    <!-- 날짜 + 시간 + 정원 -->
+    <div class="form-group">
+      <label for="dateBtn">예약 가능 날짜(시간) + 정원</label>
+      <button type="button" id="dateBtn">날짜 선택</button>
+      <div id="dateContainer" data-form-mode="true"></div>
+    </div>
+
+    <!-- 가격 -->
+    <div class="form-group">
+      <label for="price">가격</label>
+      <input type="text" id="price" name="priceFormatted" th:value="${reservationPost.price}" class="price-input" required>
+      <input type="hidden" id="priceRaw" name="price" th:value="${reservationPost.price}">
+    </div>
+
+    <!-- 기존 이미지 -->
+    <div class="form-group">
+      <label>현재 대표 이미지</label>
+      <div th:if="${reservationPost.imageUrl}">
+        <img th:src="@{${reservationPost.imageUrl}}" alt="대표 이미지" style="max-width: 300px;">
+      </div>
+    </div>
+
+    <!-- 새 이미지 선택 -->
+    <div class="form-group">
+      <label for="image">새 대표 이미지 (선택)</label>
+      <input type="file" id="image" name="imageFile" accept="image/*">
+    </div>
+
+    <!-- 회사명 -->
+    <div class="form-group">
+      <label for="companyName">회사명</label>
+      <input type="text" id="companyName" name="companyName" th:value="${reservationPost.companyName}" readonly required>
+    </div>
+
+    <!-- 상세 설명 -->
+    <div class="form-group">
+      <label for="content">상세 설명</label>
+      <textarea id="content" name="content" rows="5" th:text="${reservationPost.content}" required></textarea>
+    </div>
+
+    <!-- 제출 -->
+    <div class="form-group">
+      <button type="submit">수정 완료</button>
+    </div>
+
+    <!-- ✅ 가공된 JSON 날짜 리스트 (컨트롤러에서 넘겨줌) -->
+    <input type="hidden" id="existingDatesJson" th:value="${#objects.toJson(availableDatesJson)}" />
+  </form>
+
+  <!-- ✅ 모달 프래그먼트 삽입 -->
+  <div th:replace="fragments/modals :: regionFishDateModals"></div>
+</main>
+
+<!-- ✅ JS 스크립트 -->
+<th:block layout:fragment="add-js">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+  <script type="module" src="/js/reservation_form.js"></script>
+</th:block>
+
+</body>
+</html>
