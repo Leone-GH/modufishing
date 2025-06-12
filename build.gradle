@@ -22,7 +22,7 @@ dependencies {
     // Spring Data JPA + DB
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql:42.5.1'
-    runtimeOnly 'com.oracle.database.jdbc:ojdbc8' // 필요 시
+    runtimeOnly 'com.oracle.database.jdbc:ojdbc8' // Oracle DB 사용 시만 필요
 
     // Spring Security + OAuth2
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -53,11 +53,23 @@ tasks.withType(JavaCompile) {
     options.compilerArgs += '-parameters'
 }
 
-// 메인 클래스 명시 (Spring Boot용)
+// Render를 위한 JAR 설정 (jar 이름은 반드시 app.jar 이어야 함)
+bootJar {
+    archiveFileName = 'app.jar'
+    manifest {
+        attributes 'Start-Class': 'com.fishtripplanner.FishTripApplication'
+    }
+}
+
+// 메인 클래스 명시 (Spring Boot + Docker 실행용)
 application {
     mainClass = 'com.fishtripplanner.FishTripApplication'
 }
 
-bootJar {
-    mainClass = 'com.fishtripplanner.FishTripApplication'
+// 리소스 누락 방지
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from('src/main/resources') {
+        include '**/*'
+    }
 }
