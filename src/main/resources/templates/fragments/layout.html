@@ -6,31 +6,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:fragment="title">FishTrip</title>
-
-    <!-- 공통 CSS -->
     <link rel="stylesheet" th:href="@{/css/LayoutBase.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
-
-    <!-- 페이지별 CSS -->
     <th:block layout:fragment="add-css"></th:block>
 </head>
-
 <body>
-<div class="container">
-    <!-- 헤더 -->
-    <header th:replace="fragments/header :: headerFragment"></header>
-
-    <!-- 본문 -->
-    <div class="page-wrapper">
-        <main layout:fragment="content"></main>
-    </div>
-
-    <!-- 푸터 -->
-    <footer th:replace="fragments/footer :: footerFragment"></footer>
+<header th:replace="fragments/header :: headerFragment"></header>
+<div class="page-wrapper">
+    <main layout:fragment="content"></main>
 </div>
-
-<!-- 페이지별 JS -->
+<footer th:replace="fragments/footer :: footerFragment"></footer>
 <th:block layout:fragment="add-js"></th:block>
 <script th:src="@{/js/common.js}"></script>
 </body>

@@ -1,6 +1,14 @@
+:root {
+  --main-color: #007db9;
+  --main-color-dark: #215085;
+  --main-color-hover: #169edc;
+  --gray-bg: #f7fafd;
+  --footer-bg: #007db9; /* 푸터 배경색도 맞추려면 이 변수 사용 */
+}
+
 body {
   font-family: 'Noto Sans KR', 'Pretendard', Arial, sans-serif;
-  background: #f7fafd;
+  background: var(--gray-bg);
   margin: 0;
   color: #222;
 }
@@ -12,6 +20,7 @@ body {
   border-radius: 10px;
   box-shadow: 0 4px 32px 0 rgba(0,0,0,.07);
   padding: 30px 24px 40px 24px;
+  position: relative;
 }
 
 h1 {
@@ -19,7 +28,7 @@ h1 {
   font-weight: bold;
   font-size: 2rem;
   margin: 0 0 28px 0;
-  color: #215085;
+  color: var(--main-color-dark);
   letter-spacing: -1px;
 }
 
@@ -43,7 +52,7 @@ h1 {
 .info-row:last-child { border-bottom: none; }
 
 .info-label {
-  color: #3a537b;
+  color: var(--main-color-dark);
   font-weight: bold;
 }
 .info-value {
@@ -79,7 +88,7 @@ h1 {
 }
 #marine-info-section h2 {
   font-size: 1.06rem;
-  color: #2775b6;
+  color: var(--main-color);
   margin: 0 0 8px 0;
   font-weight: 600;
 }
@@ -97,7 +106,7 @@ h1 {
 }
 .form-group label {
   font-weight: 500;
-  color: #2b4069;
+  color: var(--main-color-dark);
   margin-bottom: 2px;
   font-size: 0.98rem;
 }
@@ -116,7 +125,7 @@ h1 {
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-  border: 1.5px solid #337ecc;
+  border: 1.5px solid var(--main-color);
   background: #f3faff;
 }
 
@@ -129,7 +138,7 @@ h1 {
 .submit-btn {
   width: 100%;
   margin-top: 20px;
-  background: #3271c7;
+  background-color: var(--main-color);
   color: #fff;
   border: none;
   border-radius: 7px;
@@ -142,7 +151,7 @@ h1 {
   transition: background 0.15s;
 }
 .submit-btn:hover {
-  background: #215085;
+  background: var(--main-color-hover);
 }
 
 #searchSuggestions, #carSuggestions {
@@ -163,7 +172,7 @@ h1 {
 }
 .suggestion:hover {
   background: #f2f6fa;
-  color: #22549b;
+  color: var(--main-color-dark);
 }
 #mapContextMenu {
   position: absolute;
@@ -181,7 +190,7 @@ h1 {
   width: 100%;
   background: none;
   border: none;
-  color: #22549b;
+  color: var(--main-color);
   font-size: 1.04rem;
   padding: 8px 0;
   cursor: pointer;
@@ -191,7 +200,4 @@ h1 {
 }
 #mapContextMenu button:hover {
   background: #eef3fb;
-}
-.container{
-    position:relative;
 }

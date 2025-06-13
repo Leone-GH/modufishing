@@ -32,7 +32,7 @@ public class BusinessRegisterController {
             @RequestParam("address") String address,
             @RequestParam("address2") String address2,
             @RequestParam("nickname") String nickname,
-            @RequestParam("phonenumber") Number phonenumber,
+            @RequestParam("phonenumber") String phonenumber,
             @RequestParam String birthyear,
             @RequestParam String birthday,
             @RequestParam String gender,
@@ -51,7 +51,7 @@ public class BusinessRegisterController {
                 .email(email)
                 .nickname(nickname)
                 .name(name)
-                .phonenumber(phonenumber.toString())
+                .phonenumber(phonenumber)
                 .address(address + " " + address2)
                 .birthyear(birthyear)
                 .birthday(birthday)

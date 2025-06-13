@@ -1,35 +1,57 @@
-// PartyCreateRequest.java
 package com.fishtripplanner.dto.party;
 
-import lombok.Getter;
-import lombok.Setter;
-
+import jakarta.validation.constraints.*;
+import lombok.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
+@Builder
 public class PartyCreateRequest {
-    // 1차 폼 입력값
-    private String triptype; // "boat" or "rock"
-    private String departurePoint;
-    private Double departureLat;
-    private Double departureLng;
-    private String destination;
-    private Double destinationLat;
-    private Double destinationLng;
-    private List<WaypointRequest> waypoints;
-    private LocalDateTime departureTime;
-    private String marineInfoJson; // JS에서 hidden input에 저장
 
-    // 2차 폼 입력값
+    @NotBlank
     private String title;
-    private String departureDesc;
-    private String destinationDesc;
-    private String waypointsDesc;
-    private String description;      // 파티모집글 설명
-    private LocalDateTime deadline;
-    // 이미지 등은 Controller에서 따로 처리
 
-    // 기타 필요한 필드는 알아서 추가
+    @NotBlank
+    private String departurePoint;
+    @NotBlank
+    private String destination;
+    private String waypoint;
+
+    @NotNull
+    private Double departureLat;
+    @NotNull
+    private Double departureLng;
+    @NotNull
+    private Double destinationLat;
+    @NotNull
+    private Double destinationLng;
+
+    @NotBlank
+    private String triptype; // boat, rock
+
+    @NotNull
+    private LocalDateTime departureDate;
+    @NotNull
+    private LocalDateTime deadlineDate;
+
+    @Min(2)
+    @Max(30)
+    @NotNull
+    private Integer maxPerson;
+
+    private String carInfo;
+    private Integer fuelCostEstimate;
+    private String routePathJson;
+    private String spec;
+
+    @NotBlank
+    private String userid;
+
+    public boolean isValidPeriod() {
+        if (deadlineDate == null || departureDate == null) return false;
+        // 마감일이 출발일시 "이전"이어야 정상 등록
+        return deadlineDate.isBefore(departureDate);
+    }
 }
 

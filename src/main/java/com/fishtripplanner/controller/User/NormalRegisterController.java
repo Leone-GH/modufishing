@@ -29,7 +29,7 @@ public class NormalRegisterController {
                 @RequestParam String nickname,
                 @RequestParam String address,
                 @RequestParam String address2,
-                @RequestParam Number phonenumber,
+                @RequestParam String phonenumber,
                 @RequestParam String birthyear,
                 @RequestParam String birthday,
                 @RequestParam String gender,
@@ -49,7 +49,7 @@ public class NormalRegisterController {
                     .email(email)
                     .name(name)
                     .nickname(nickname)
-                    .phonenumber(phonenumber.toString())
+                    .phonenumber(phonenumber)
                     .address(address + " " + address2)
                     .role(UserRole.NORMAL) // 예: BUSINESS 또는 OWNER 같은 enum 값
                     .createdAt(now)
