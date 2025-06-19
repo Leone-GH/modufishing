@@ -1,78 +1,46 @@
 plugins {
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.0'
     id 'java'
-    id 'org.springframework.boot' version '3.2.4'
-    id 'io.spring.dependency-management' version '1.1.4'
-    id 'application'
 }
 
-group = 'com.fishtripplanner'
-version = '1.0-SNAPSHOT'
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    // Spring Boot 기본 웹 + 템플릿
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0'
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-
-    // Spring Data JPA + DB
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    runtimeOnly 'org.postgresql:postgresql:42.5.1'
-    runtimeOnly 'com.oracle.database.jdbc:ojdbc8' // Oracle DB 사용 시만 필요
-
-    // Spring Security + OAuth2
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // CSV 처리
-    implementation 'com.opencsv:opencsv:5.8'
+    implementation 'com.opencsv:opencsv:5.7.1'
 
-    // 개발 편의
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
 
-    // Lombok
+    runtimeOnly 'org.postgresql:postgresql'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // 테스트
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-
-    //validation
-    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
 }
 
-tasks.withType(JavaCompile) {
-    options.compilerArgs += '-parameters'
-}
-
-// Render를 위한 JAR 설정 (jar 이름은 반드시 app.jar 이어야 함)
-bootJar {
-    archiveFileName = 'app.jar'
-    manifest {
-        attributes 'Start-Class': 'com.fishtripplanner.FishTripApplication'
-    }
-}
-
-// 메인 클래스 명시 (Spring Boot + Docker 실행용)
-application {
+// ✅ main 클래스 명시
+springBoot {
     mainClass = 'com.fishtripplanner.FishTripApplication'
 }
 
-// 리소스 누락 방지
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from('src/main/resources') {
-        include '**/*'
-    }
+// ✅ JAR 이름 지정
+bootJar {
+    archiveFileName = 'fishtripdeploy.jar'
 }
