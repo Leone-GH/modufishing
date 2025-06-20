@@ -45,6 +45,8 @@
           <input type="number" id="max-person" name="maxPerson" min="2" max="30" value="4" required>
         </div>
 
+
+
         <div class="form-group">
           <label for="carSearchInput">차량 검색</label>
           <input type="text" id="carSearchInput" placeholder="예: 볼보 XC60" autocomplete="off">
@@ -65,7 +67,20 @@
       </div>
 
       <section class="info-card" style="margin-top:20px;">
-        <!-- ... info rows ... -->
+
+        <section id="routeInfoCard" class="card-container">
+          <div class="card-header">📍 여행 요약 정보</div>
+          <ul class="card-content">
+            <li><strong>출발지:</strong> <span id="departurePointView">-</span></li>
+            <li><strong>도착지:</strong> <span id="destinationView">-</span></li>
+            <li><strong>경유지:</strong> <span id="waypointView">-</span></li>
+            <li><strong>차량:</strong> <span id="carInfoView">-</span></li>
+            <li><strong>예상 연료비:</strong> <span id="fuelInfoView">-</span></li>
+            <li><strong>소요 시간:</strong> <span id="durationText">-</span></li>
+            <li><strong>톨게이트:</strong> <span id="tollText">-</span></li>
+          </ul>
+        </section>
+
       </section>
 
       <section id="marine-info-section">

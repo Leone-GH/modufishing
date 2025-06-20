@@ -293,7 +293,24 @@ window.onload = function () {
       } else {
         card.style.display = 'none';
       }
+       if (!document.getElementById('fuelCostEstimate').value) {
+          fuelInfoView.textContent = '-';
+        }
     }
+    // 2) marine fetch 파라미터 통일
+    fetch(`/api/marine?lat=${destinationLat}&lon=${destinationLng}&arrivalDate=${arrivalDate}&arrivalTime=${arrivalTime}`)
+    // 3) routeInfoCard가 없으면 생성
+    let routeInfoCard = document.getElementById('routeInfoCard');
+    if (!routeInfoCard) {
+      routeInfoCard = document.createElement('section');
+      routeInfoCard.id = 'routeInfoCard';
+      routeInfoCard.style.display = 'none';
+      document.querySelector('.info-card').after(routeInfoCard);
+    }
+
+    // 4) waypoint 문자열 누적
+    document.getElementById('waypoint').value +=
+      (document.getElementById('waypoint').value ? ',' : '') + result[0].address.address_name;
 
     // ===== 폼 제출: 경유지/좌표/연료비/경로path 저장 =====
     document.getElementById('partyForm').addEventListener('submit', () => {
